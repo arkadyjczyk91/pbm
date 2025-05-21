@@ -1,7 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
-import { ITransaction } from '../types';
 
-const transactionSchema = new Schema<ITransaction>({
+const transactionSchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     amount: {
         type: Number,
@@ -28,4 +27,4 @@ transactionSchema.index({ user: 1, date: -1 });
 transactionSchema.index({ user: 1, type: 1 });
 transactionSchema.index({ user: 1, category: 1 });
 
-export default mongoose.model<ITransaction>('Transaction', transactionSchema);
+export default mongoose.model('Transaction', transactionSchema);

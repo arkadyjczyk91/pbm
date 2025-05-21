@@ -1,5 +1,5 @@
 import API from "./api";
-import {Transaction} from "../types";
+import type {Transaction} from "../types";
 
 export const fetchTransactions = () => API.get<Transaction[]>("/api/transactions");
 export const addTransaction = (data: Omit<Transaction, "_id" | "user">) => API.post("/api/transactions", data);

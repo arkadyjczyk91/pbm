@@ -1,47 +1,56 @@
-import React from "react";
-import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import Dashboard from "./pages/Dashboard";
-import Transactions from "./pages/Transaction";
-import ProfilePage from "./pages/ProfilePage";
-import Navbar from "./components/Navbar";
-import ProtectedRoute from "./components/ProtectedRoute";
+import {ThemeProvider, CssBaseline} from '@mui/material';
+import {useState, useEffect} from 'react';
+import {lightTheme, darkTheme} from './theme';
 
-const App: React.FC = () => {
+function App() {
+    const [darkMode, setDarkMode] = useState(
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+    );
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleChange = (e: MediaQueryListEvent) => setDarkMode(e.matches);
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+    }, []);
+
     return (
-        <Router>
-            <Navbar/>
-            <Routes>
-                <Route path="/login" element={<LoginPage/>}/>
-                <Route path="/register" element={<RegisterPage/>}/>
-                <Route
-                    path="/dashboard"
-                    element={
-                        <ProtectedRoute>
-                            <Dashboard/>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/transactions"
-                    element={
-                        <ProtectedRoute>
-                            <Transactions/>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/profile"
-                    element={
-                        <ProtectedRoute>
-                            <ProfilePage/>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route path="*" element={<Navigate to="/dashboard"/>}/>
-            </Routes>
-        </Router>
+        <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+            <CssBaseline/>
+            <Router>
+                <Navbar/>
+                <Routes>
+                    <Route path="/login" element={<LoginPage/>}/>
+                    <Route path="/register" element={<RegisterPage/>}/>
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <ProtectedRoute>
+                                <Dashboard/>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/transactions"
+                        element={
+                            <ProtectedRoute>
+                                <Transactions/>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute>
+                                <ProfilePage/>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route path="*" element={<Navigate to="/dashboard"/>}/>
+                </Routes>
+            </Router>
+            <PWAPrompt/>
+        </ThemeProvider>
     );
 };
 

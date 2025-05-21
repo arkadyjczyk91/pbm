@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import API from "../api/api";
-import {Transaction} from "../types";
+import type { Transaction } from "../types";
 import {Box, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow, Modal} from "@mui/material";
 import AddTransactionForm from "../components/AddTransactionForm";
 import TransactionFilters from "../components/TransactionFilters";

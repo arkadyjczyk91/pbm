@@ -1,189 +1,208 @@
-import React, { useState, useEffect } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { Button, TextField, Typography, Box, Tabs, Tab, Snackbar, Alert } from "@mui/material";
-import { User } from "../types";
-import { getCurrentUser, updateUserProfile, changePassword } from "../api/auth";
+import React, { useState, useEffect } from 'react';
+  import {
+    Box, Typography, Avatar, Card, CardContent, Button,
+    Grid, Divider, Chip, CircularProgress, useTheme
+  } from '@mui/material';
+  import EditIcon from '@mui/icons-material/Edit';
+  import LogoutIcon from '@mui/icons-material/Logout';
+  import NightlightIcon from '@mui/icons-material/Nightlight';
+  import LightModeIcon from '@mui/icons-material/LightMode';
+  import DownloadIcon from '@mui/icons-material/Download';
+  import { Line } from 'react-chartjs-2';
+  import { getUserInfo, logout } from '../api/auth';
+  import { useNavigate } from 'react-router-dom';
 
-const ProfilePage: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [tabIndex, setTabIndex] = useState(0);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
+  const ProfilePage = () => {
+    const [user, setUser] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    const theme = useTheme();
 
-  useEffect(() => {
-    const fetchUser = async () => {
+    useEffect(() => {
+      const loadUser = async () => {
+        try {
+          const userData = await getUserInfo();
+          setUser(userData);
+        } catch (error) {
+          console.error("Błąd podczas ładowania danych użytkownika:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadUser();
+    }, []);
+
+    const handleLogout = async () => {
       try {
-        const res = await getCurrentUser();
-        setUser(res.data);
-      } catch (err) {
-        console.error("Błąd pobierania danych użytkownika:", err);
+        await logout();
+        navigate('/login');
+      } catch (error) {
+        console.error("Błąd podczas wylogowywania:", error);
       }
     };
-    fetchUser();
-  }, []);
 
-  const profileForm = useFormik({
-    initialValues: {
-      username: user?.username || "",
-      email: user?.email || "",
-    },
-    enableReinitialize: true,
-    validationSchema: Yup.object({
-      username: Yup.string().min(3, "Min 3 znaki").required("Wymagane"),
-      email: Yup.string().email("Niepoprawny email").required("Wymagane"),
-    }),
-    onSubmit: async (values, { setSubmitting }) => {
-      try {
-        await updateUserProfile(values);
-        setSnackbar({
-          open: true,
-          message: "Profil zaktualizowany pomyślnie",
-          severity: "success",
-        });
-      } catch (err) {
-        setSnackbar({
-          open: true,
-          message: "Błąd podczas aktualizacji profilu",
-          severity: "error",
-        });
-      }
-      setSubmitting(false);
-    },
-  });
+    if (loading) {
+      return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
 
-  const passwordForm = useFormik({
-    initialValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
-    validationSchema: Yup.object({
-      currentPassword: Yup.string().required("Wymagane"),
-      newPassword: Yup.string()
-        .min(8, "Min. 8 znaków")
-        .matches(/[0-9]/, "Min. 1 cyfra")
-        .matches(/[A-Za-z]/, "Min. 1 litera")
-        .matches(/[!@#$%^&*]/, "Min. 1 znak specjalny")
-        .required("Wymagane"),
-      confirmPassword: Yup.string()
-        .oneOf([Yup.ref("newPassword"), ""], "Hasła muszą być takie same")
-        .required("Wymagane"),
-    }),
-    onSubmit: async (values, { setSubmitting, resetForm }) => {
-      try {
-        await changePassword({
-          currentPassword: values.currentPassword,
-          newPassword: values.newPassword,
-        });
-        resetForm();
-        setSnackbar({
-          open: true,
-          message: "Hasło zmienione pomyślnie",
-          severity: "success",
-        });
-      } catch (err) {
-        setSnackbar({
-          open: true,
-          message: "Błąd podczas zmiany hasła",
-          severity: "error",
-        });
-      }
-      setSubmitting(false);
-    },
-  });
+    // Dane do wykresu aktywności
+    const activityData = {
+      labels: ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec'],
+      datasets: [
+        {
+          label: 'Liczba transakcji',
+          data: [12, 19, 3, 5, 2, 3],
+          borderColor: theme.palette.primary.main,
+          backgroundColor: theme.palette.primary.main + '20',
+          fill: true,
+        },
+      ],
+    };
 
-  return (
-    <Box maxWidth={600} mx="auto" mt={4}>
-      <Typography variant="h4" mb={3}>Twój profil</Typography>
+    return (
+      <Box sx={{ py: 4, px: { xs: 2, md: 4 } }}>
+        <Grid container spacing={3}>
+          {/* Główna karta profilu */}
+          <Grid item xs={12} md={4}>
+            <Card
+              elevation={3}
+              sx={{
+                borderRadius: 3,
+                height: '100%',
+                transition: 'all 0.3s',
+                '&:hover': { transform: 'translateY(-5px)' }
+              }}
+            >
+              <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                <Avatar
+                  sx={{
+                    width: 120,
+                    height: 120,
+                    mx: 'auto',
+                    mb: 2,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    border: `4px solid ${theme.palette.primary.main}`
+                  }}
+                >
+                  {user?.name?.charAt(0) || 'U'}
+                </Avatar>
+                <Typography variant="h5" gutterBottom>
+                  {user?.name || 'Użytkownik'}
+                </Typography>
+                <Typography color="text.secondary" gutterBottom>
+                  {user?.email || 'email@przykład.com'}
+                </Typography>
 
-      <Tabs value={tabIndex} onChange={(_, newValue) => setTabIndex(newValue)} sx={{ mb: 3 }}>
-        <Tab label="Dane profilu" />
-        <Tab label="Zmiana hasła" />
-      </Tabs>
+                <Box sx={{ mt: 2 }}>
+                  <Chip
+                    label="Aktywny użytkownik"
+                    color="success"
+                    sx={{ fontWeight: 'medium' }}
+                  />
+                </Box>
 
-      {tabIndex === 0 && (
-        <form onSubmit={profileForm.handleSubmit}>
-          <TextField
-            label="Nazwa użytkownika"
-            fullWidth
-            margin="normal"
-            {...profileForm.getFieldProps("username")}
-            error={!!profileForm.errors.username && profileForm.touched.username}
-            helperText={profileForm.touched.username && profileForm.errors.username}
-          />
-          <TextField
-            label="Email"
-            fullWidth
-            margin="normal"
-            {...profileForm.getFieldProps("email")}
-            error={!!profileForm.errors.email && profileForm.touched.email}
-            helperText={profileForm.touched.email && profileForm.errors.email}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ mt: 2 }}
-            disabled={profileForm.isSubmitting}
-          >
-            Aktualizuj profil
-          </Button>
-        </form>
-      )}
+                <Divider sx={{ my: 3 }} />
 
-      {tabIndex === 1 && (
-        <form onSubmit={passwordForm.handleSubmit}>
-          <TextField
-            label="Obecne hasło"
-            type="password"
-            fullWidth
-            margin="normal"
-            {...passwordForm.getFieldProps("currentPassword")}
-            error={!!passwordForm.errors.currentPassword && passwordForm.touched.currentPassword}
-            helperText={passwordForm.touched.currentPassword && passwordForm.errors.currentPassword}
-          />
-          <TextField
-            label="Nowe hasło"
-            type="password"
-            fullWidth
-            margin="normal"
-            {...passwordForm.getFieldProps("newPassword")}
-            error={!!passwordForm.errors.newPassword && passwordForm.touched.newPassword}
-            helperText={passwordForm.touched.newPassword && passwordForm.errors.newPassword}
-          />
-          <TextField
-            label="Potwierdź nowe hasło"
-            type="password"
-            fullWidth
-            margin="normal"
-            {...passwordForm.getFieldProps("confirmPassword")}
-            error={!!passwordForm.errors.confirmPassword && passwordForm.touched.confirmPassword}
-            helperText={passwordForm.touched.confirmPassword && passwordForm.errors.confirmPassword}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ mt: 2 }}
-            disabled={passwordForm.isSubmitting}
-          >
-            Zmień hasło
-          </Button>
-        </form>
-      )}
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2
+                }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    sx={{ borderRadius: 2 }}
+                  >
+                    Edytuj profil
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<LogoutIcon />}
+                    onClick={handleLogout}
+                    sx={{ borderRadius: 2 }}
+                  >
+                    Wyloguj się
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar(prev => ({...prev, open: false}))}
-      >
-        <Alert
-          onClose={() => setSnackbar(prev => ({...prev, open: false}))}
-          severity={snackbar.severity}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
-  );
-};
+          {/* Aktywność użytkownika */}
+          <Grid item xs={12} md={8}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Card
+                  elevation={3}
+                  sx={{
+                    borderRadius: 3,
+                    transition: 'all 0.3s',
+                    '&:hover': { transform: 'translateY(-5px)' }
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Twoja aktywność
+                    </Typography>
+                    <Box sx={{ height: 300, mt: 2 }}>
+                      <Line data={activityData} />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
 
-export default ProfilePage;
+              {/* Ustawienia aplikacji */}
+              <Grid item xs={12}>
+                <Card
+                  elevation={3}
+                  sx={{
+                    borderRadius: 3,
+                    transition: 'all 0.3s',
+                    '&:hover': { transform: 'translateY(-5px)' }
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Ustawienia aplikacji
+                    </Typography>
+
+                    <Grid container spacing={2} sx={{ mt: 1 }}>
+                      <Grid item xs={12} sm={6}>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          startIcon={theme.palette.mode === 'dark' ? <LightModeIcon /> : <NightlightIcon />}
+                          sx={{ borderRadius: 2, py: 1.5 }}
+                        >
+                          {theme.palette.mode === 'dark' ? 'Tryb jasny' : 'Tryb ciemny'}
+                        </Button>
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          startIcon={<DownloadIcon />}
+                          sx={{ borderRadius: 2, py: 1.5 }}
+                        >
+                          Zainstaluj aplikację (PWA)
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Box>
+    );
+  };
+
+  export default ProfilePage;

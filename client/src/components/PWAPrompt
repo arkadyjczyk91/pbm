@@ -1,0 +1,105 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Box, Button, Dialog, DialogActions, DialogContent,
+  DialogTitle, Typography, useTheme
+} from '@mui/material';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import CloseIcon from '@mui/icons-material/Close';
+
+const PWAPrompt: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [installEvent, setInstallEvent] = useState<any>(null);
+  const theme = useTheme();
+
+  useEffect(() => {
+    // Sprawdź czy aplikacja jest już zainstalowana
+    const isAppInstalled = window.matchMedia('(display-mode: standalone)').matches;
+
+    // Sprawdź czy użytkownik zamknął powiadomienie
+    const hasPromptBeenShown = localStorage.getItem('pwaPromptShown');
+
+    if (!isAppInstalled && !hasPromptBeenShown) {
+      // Opóźnienie wyświetlenia komunikatu
+      const timer = setTimeout(() => setIsOpen(true), 3000);
+
+      // Obsługa zdarzenia instalacji
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        setInstallEvent(e);
+      });
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    // Zapisz informację, że powiadomienie zostało pokazane
+    localStorage.setItem('pwaPromptShown', 'true');
+  };
+
+  const handleInstall = async () => {
+    if (installEvent) {
+      installEvent.prompt();
+      const choiceResult = await installEvent.userChoice;
+
+      if (choiceResult.outcome === 'accepted') {
+        console.log('Użytkownik zaakceptował instalację PWA');
+      }
+      setIsOpen(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={handleClose}
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          maxWidth: 400
+        }
+      }}
+    >
+      <DialogTitle>
+        Zainstaluj aplikację
+        <Button
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+          onClick={handleClose}
+        >
+          <CloseIcon />
+        </Button>
+      </DialogTitle>
+      <DialogContent>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+          <img
+            src="/logo192.png"
+            alt="Logo aplikacji"
+            style={{ width: 100, height: 100, marginBottom: 16 }}
+          />
+          <Typography variant="body1" gutterBottom>
+            Zainstaluj naszą aplikację na swoim urządzeniu, aby korzystać z niej offline i uzyskać lepsze wrażenia z użytkowania.
+          </Typography>
+        </Box>
+      </DialogContent>
+      <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
+        <Button onClick={handleClose} color="inherit">
+          Później
+        </Button>
+        <Button
+          onClick={handleInstall}
+          variant="contained"
+          startIcon={<GetAppIcon />}
+          sx={{
+            ml: 2,
+            background: `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.primary.main} 90%)`,
+          }}
+        >
+          Zainstaluj teraz
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default PWAPrompt;

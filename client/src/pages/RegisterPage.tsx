@@ -34,8 +34,12 @@ const RegisterPage: React.FC = () => {
             try {
                 await API.post("/api/auth/register", values);
                 navigate("/login");
-            } catch (err) {
-                setErrors({ email: "Adres email jest już zajęty" });
+            } catch (err: any) {
+                const msg =
+                    err?.response?.data?.errors?.[0]?.msg ||
+                    err?.response?.data?.message ||
+                    "Wystąpił błąd rejestracji";
+                setErrors({ email: msg });
             }
             setSubmitting(false);
         },

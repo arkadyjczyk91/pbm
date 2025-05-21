@@ -4,7 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import connectDB from './config/db';
 import authRoutes from './routes/auth';
-import transactionRoutes from './routes/transactions';
+import transactionRoutes from './routes/transaction';
 
 // Załadowanie zmiennych środowiskowych
 dotenv.config();
@@ -24,18 +24,18 @@ app.use('/api/transactions', transactionRoutes);
 
 // Obsługa PWA - statyczne pliki dla frontendu
 if (process.env.NODE_ENV === 'production') {
-  // Statyczne pliki
-  app.use(express.static('client/build'));
+    // Statyczne pliki
+    app.use(express.static('client/build'));
 
-  // Service Worker
-  app.get('/service-worker.js', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client/build/service-worker.js'));
-  });
+    // Service Worker
+    app.get('/service-worker.js', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '../client/build/service-worker.js'));
+    });
 
-  // Wszystkie pozostałe ścieżki kierowane do aplikacji React
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client/build/index.html'));
-  });
+    // Wszystkie pozostałe ścieżki kierowane do aplikacji React
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '../client/build/index.html'));
+    });
 }
 
 const PORT = process.env.PORT || 5000;
