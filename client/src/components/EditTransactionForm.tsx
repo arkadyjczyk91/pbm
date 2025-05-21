@@ -44,7 +44,8 @@ const EditTransactionForm: React.FC<Props> = ({
             try {
                 await updateTransaction(transaction._id, {
                     ...values,
-                    amount: Number(values.amount)
+                    amount: Number(values.amount),
+                    type: values.type as "income" | "expense"
                 });
                 afterSubmit();
             } catch (err) {
@@ -93,7 +94,7 @@ const EditTransactionForm: React.FC<Props> = ({
                 fullWidth
                 margin="normal"
                 {...formik.getFieldProps("date")}
-                InputLabelProps={{shrink: true}}
+                slotProps={{inputLabel: {shrink: true}}}
                 error={!!formik.errors.date && formik.touched.date}
                 helperText={formik.touched.date && formik.errors.date}
             />
