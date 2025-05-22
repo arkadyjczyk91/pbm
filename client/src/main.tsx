@@ -9,14 +9,23 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </React.StrictMode>
 );
 
-// Zawsze rejestruj service worker, niezależnie od środowiska
 if ('serviceWorker' in navigator) {
-    serviceWorker.register({
-        onSuccess: (registration) => {
-            console.log('Service Worker zarejestrowany pomyślnie', registration);
-        },
-        onUpdate: (registration) => {
-            console.log('Service Worker zaktualizowany', registration);
-        }
-    });
+    try {
+        serviceWorker.register({
+            onSuccess: (registration) => {
+                console.log('Service Worker zarejestrowany pomyślnie', registration);
+            },
+            onUpdate: (registration) => {
+                console.log('Service Worker zaktualizowany', registration);
+                // Automatyczne przeładowanie po aktualizacji SW
+                if (navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        window.location.reload();
+                    });
+                }
+            }
+        });
+    } catch (err: any) {
+        console.error('Błąd rejestracji Service Workera:', err);
+    }
 }
