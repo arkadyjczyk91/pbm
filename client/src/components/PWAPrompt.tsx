@@ -6,13 +6,13 @@ import {
 import GetAppIcon from '@mui/icons-material/GetApp';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIcon from '@mui/icons-material/Close';
-import { usePWA } from '../hooks/usePWA';
+import { usePWAContext } from '../PWAContext';
 
 const PWAPrompt: React.FC = () => {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [showOpenPrompt, setShowOpenPrompt] = useState(false);
   const theme = useTheme();
-  const [pwaStatus, promptInstall] = usePWA();
+  const [pwaStatus, promptInstall] = usePWAContext();
 
   useEffect(() => {
     if (pwaStatus.isStandalone) return; // Nie pokazuj dialogów jeśli już uruchomiona jako PWA

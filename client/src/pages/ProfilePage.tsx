@@ -40,7 +40,7 @@ import {
     Filler,
     type ChartOptions
 } from 'chart.js';
-import {usePWA} from '../hooks/usePWA';
+import { usePWAContext } from '../PWAContext';
 
 ChartJS.register(
     CategoryScale,
@@ -76,7 +76,7 @@ const ProfilePage = () => {
     const [passwordLoading, setPasswordLoading] = useState(false);
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
-    const [pwaStatus, promptInstall] = usePWA();
+    const [pwaStatus, promptInstall] = usePWAContext();
     const theme = useTheme();
     const chartRef = useRef<any>(null);
 
