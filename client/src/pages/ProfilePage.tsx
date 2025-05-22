@@ -17,6 +17,7 @@ import {
     FormControl,
     InputLabel,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import Divider from '@mui/material/Divider';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -120,12 +121,7 @@ const ProfilePage = () => {
                 chart.options.scales.y = chart.options.scales.y || {};
                 chart.options.scales.y.grid = {
                     ...(chart.options.scales.y.grid || {}),
-                    color: (context: any) => {
-                        if (context.tick?.value === 0) {
-                            return theme.palette.divider;
-                        }
-                        return theme.palette.divider + '80';
-                    },
+                    color: alpha(theme.palette.divider, 0.5),
                 };
 
                 // Aktualizuj wykres jeśli metoda istnieje

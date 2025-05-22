@@ -12,11 +12,14 @@ import {
     TableRow,
     Modal,
     TableContainer,
-    Paper
+    Paper,
+    Card,
+    CardContent
 } from "@mui/material";
 import AddTransactionForm from "../components/AddTransactionForm";
 import TransactionFilters from "../components/TransactionFilters";
 import EditTransactionForm from "../components/EditTransactionForm";
+import useMediaQuery from '@mui/material/useMediaQuery';
 import {useTheme} from "@mui/material/styles";
 
 const Transactions: React.FC = () => {
@@ -30,6 +33,7 @@ const Transactions: React.FC = () => {
         category: ""
     });
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const filteredTransactions = transactions.filter(t => {
         // Filtr po typie
@@ -94,47 +98,73 @@ const Transactions: React.FC = () => {
                 onFilterChange={handleFilterChange}
                 onReset={resetFilters}
             />
-
-            <TableContainer component={Paper} sx={{maxWidth: "100%", overflowX: "auto", mb: 2}}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Kategoria</TableCell>
-                            <TableCell>Kwota</TableCell>
-                            <TableCell>Typ</TableCell>
-                            <TableCell>Data</TableCell>
-                            <TableCell>Opis</TableCell>
-                            <TableCell>Akcje</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {filteredTransactions.map((t) => (
-                            <TableRow key={t._id}>
-                                <TableCell>{t.category}</TableCell>
-                                <TableCell>{t.amount} zł</TableCell>
-                                <TableCell>{t.type === "income" ? "Przychód" : "Wydatek"}</TableCell>
-                                <TableCell>{new Date(t.date).toLocaleDateString()}</TableCell>
-                                <TableCell>{t.description}</TableCell>
-                                <TableCell>
-                                    <Button
-                                        sx={{mr: 1}}
-                                        color="primary"
-                                        onClick={() => setEditTransaction(t)}
-                                    >
+            {isMobile ? (
+                <Box>
+                    {filteredTransactions.map(t => (
+                        <Card key={t._id} sx={{mb: 2}}>
+                            <CardContent>
+                                <Typography variant="subtitle1">{t.category}</Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {t.type === "income" ? "Przychód" : "Wydatek"} • {t.amount} zł
+                                </Typography>
+                                <Typography variant="body2">{new Date(t.date).toLocaleDateString()}</Typography>
+                                {t.description && (
+                                    <Typography variant="body2" sx={{mt: 1}}>{t.description}</Typography>
+                                )}
+                                <Box sx={{mt: 2, display: "flex", gap: 1}}>
+                                    <Button size="small" color="primary" onClick={() => setEditTransaction(t)}>
                                         Edytuj
                                     </Button>
-                                    <Button
-                                        color="error"
-                                        onClick={() => handleDelete(t._id)}
-                                    >
+                                    <Button size="small" color="error" onClick={() => handleDelete(t._id)}>
                                         Usuń
                                     </Button>
-                                </TableCell>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </Box>
+            ) : (
+                <TableContainer component={Paper} sx={{maxWidth: "100%", overflowX: "auto", mb: 2}}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Kategoria</TableCell>
+                                <TableCell>Kwota</TableCell>
+                                <TableCell>Typ</TableCell>
+                                <TableCell>Data</TableCell>
+                                <TableCell>Opis</TableCell>
+                                <TableCell>Akcje</TableCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                            {filteredTransactions.map((t) => (
+                                <TableRow key={t._id}>
+                                    <TableCell>{t.category}</TableCell>
+                                    <TableCell>{t.amount} zł</TableCell>
+                                    <TableCell>{t.type === "income" ? "Przychód" : "Wydatek"}</TableCell>
+                                    <TableCell>{new Date(t.date).toLocaleDateString()}</TableCell>
+                                    <TableCell>{t.description}</TableCell>
+                                    <TableCell>
+                                        <Button
+                                            sx={{mr: 1}}
+                                            color="primary"
+                                            onClick={() => setEditTransaction(t)}
+                                        >
+                                            Edytuj
+                                        </Button>
+                                        <Button
+                                            color="error"
+                                            onClick={() => handleDelete(t._id)}
+                                        >
+                                            Usuń
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            )}
 
             {/* Modal dodawania transakcji */}
             <Modal open={open} onClose={() => setOpen(false)}>
@@ -155,7 +185,8 @@ const Transactions: React.FC = () => {
                 </Box>
             </Modal>
 
-            {/* Modal edycji transakcji */}
+            {/* Modal edycji transakcji */
+            }
             <Modal
                 open={!!editTransaction}
                 onClose={() => setEditTransaction(null)}
