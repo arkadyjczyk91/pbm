@@ -27,7 +27,7 @@ export const addTransaction = async (req: AuthRequest, res: Response): Promise<v
         return;
     }
 
-    const { amount, type, category, date, description } = req.body;
+    const { amount, type, category, date, title, description } = req.body;
 
     try {
         if (!req.user) {
@@ -41,6 +41,7 @@ export const addTransaction = async (req: AuthRequest, res: Response): Promise<v
             type,
             category,
             date: date || Date.now(),
+            title,
             description,
         });
 
@@ -81,7 +82,7 @@ export const updateTransaction = async (req: AuthRequest, res: Response): Promis
         return;
     }
 
-    const { amount, type, category, date, description } = req.body;
+    const { amount, type, category, date, title, description } = req.body;
 
     try {
         if (!req.user) {
@@ -99,6 +100,7 @@ export const updateTransaction = async (req: AuthRequest, res: Response): Promis
         transaction.type = type || transaction.type;
         transaction.category = category || transaction.category;
         transaction.date = date || transaction.date;
+        transaction.title = title || transaction.title;
         transaction.description = description !== undefined ? description : transaction.description;
 
         await transaction.save();

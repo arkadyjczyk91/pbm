@@ -1,8 +1,15 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box, IconButton } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 
-const Navbar: React.FC = () => {
+type NavbarProps = {
+    darkMode: boolean;
+    setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+function Navbar({ darkMode, setDarkMode }: NavbarProps) {
     const navigate = useNavigate();
     const isLogged = !!localStorage.getItem("token");
 
@@ -30,9 +37,12 @@ const Navbar: React.FC = () => {
                         <Button color="inherit" component={Link} to="/register">Rejestracja</Button>
                     </Box>
                 )}
+                <IconButton onClick={() => setDarkMode((prev) => !prev)} color="inherit" sx={{ ml: 2 }}>
+                    {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+                </IconButton>
             </Toolbar>
         </AppBar>
     );
-};
+}
 
 export default Navbar;

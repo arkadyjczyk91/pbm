@@ -20,6 +20,7 @@ const transactionSchema = new Schema({
                'rozrywka', 'rachunki', 'zdrowie', 'edukacja', 'odzież', 'inne_wydatki']
     },
     date: { type: Date, default: Date.now },
+    title: { type: String, required: true, maxlength: 100 },
     description: { type: String, maxlength: 200 }
 }, { timestamps: true });
 

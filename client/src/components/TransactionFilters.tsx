@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, TextField, MenuItem, Button } from "@mui/material";
-import { CATEGORIES } from "../constants";
+import { CATEGORIES } from "../constants.tsx";
 
 interface FilterValues {
   startDate: string;

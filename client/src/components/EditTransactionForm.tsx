@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import type {Transaction} from "../types";
 import {updateTransaction} from "../api/transaction";
 import {Button, TextField, MenuItem, Box} from "@mui/material";
-import {CATEGORIES} from "../constants";
+import {CATEGORIES} from "../constants.tsx";
 
 interface Props {
     transaction: Transaction;

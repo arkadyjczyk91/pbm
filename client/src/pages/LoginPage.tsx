@@ -1,9 +1,9 @@
 import React from "react";
-import { useFormik } from "formik";
+import {useFormik} from "formik";
 import * as Yup from "yup";
-import API from "../api/api";
-import { useNavigate } from "react-router-dom";
-import { Button, TextField, Typography, Box } from "@mui/material";
+import {useNavigate} from "react-router-dom";
+import {Button, TextField, Typography, Box} from "@mui/material";
+import {login} from "../api/auth.ts";
 
 interface LoginValues {
     email: string;
@@ -14,18 +14,18 @@ const LoginPage: React.FC = () => {
     const navigate = useNavigate();
 
     const formik = useFormik<LoginValues>({
-        initialValues: { email: "", password: "" },
+        initialValues: {email: "", password: ""},
         validationSchema: Yup.object({
             email: Yup.string().email("Niepoprawny email").required("Wymagane"),
             password: Yup.string().required("Wymagane"),
         }),
-        onSubmit: async (values, { setSubmitting, setErrors }) => {
+        onSubmit: async (values, {setSubmitting, setErrors}) => {
             try {
-                const res = await API.post("/api/auth/login", values);
+                const res = await login(values);
                 localStorage.setItem("token", res.data.token);
                 navigate("/dashboard");
             } catch (err) {
-                setErrors({ password: "Nieprawidłowy email lub hasło" });
+                setErrors({password: "Nieprawidłowy email lub hasło"});
             }
             setSubmitting(false);
         },
@@ -52,7 +52,7 @@ const LoginPage: React.FC = () => {
                     error={!!formik.errors.password && formik.touched.password}
                     helperText={formik.touched.password && formik.errors.password}
                 />
-                <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+                <Button type="submit" fullWidth variant="contained" sx={{mt: 2}}>
                     Zaloguj się
                 </Button>
             </form>

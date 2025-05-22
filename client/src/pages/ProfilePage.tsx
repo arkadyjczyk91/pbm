@@ -1,208 +1,702 @@
-import React, { useState, useEffect } from 'react';
-  import {
-    Box, Typography, Avatar, Card, CardContent, Button,
-    Grid, Divider, Chip, CircularProgress, useTheme
-  } from '@mui/material';
-  import EditIcon from '@mui/icons-material/Edit';
-  import LogoutIcon from '@mui/icons-material/Logout';
-  import NightlightIcon from '@mui/icons-material/Nightlight';
-  import LightModeIcon from '@mui/icons-material/LightMode';
-  import DownloadIcon from '@mui/icons-material/Download';
-  import { Line } from 'react-chartjs-2';
-  import { getUserInfo, logout } from '../api/auth';
-  import { useNavigate } from 'react-router-dom';
+import {useState, useEffect, useRef} from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Avatar from '@mui/material/Avatar';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import {
+    Grid,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    MenuItem,
+    Select,
+    FormControl,
+    InputLabel,
+} from '@mui/material';
+import Divider from '@mui/material/Divider';
+import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
+import {useTheme} from '@mui/material/styles';
+import EditIcon from '@mui/icons-material/Edit';
+import DownloadIcon from '@mui/icons-material/Download';
+import LockIcon from '@mui/icons-material/Lock';
+import {Line} from 'react-chartjs-2';
+import {getCurrentUser as getUserInfo, updateUserProfile, changePassword} from '../api/auth';
+import {fetchAllTransactions} from '../api/transaction';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip as ChartTooltip,
+    Legend,
+    Filler,
+    type ChartOptions
+} from 'chart.js';
 
-  const ProfilePage = () => {
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    ChartTooltip,
+    Legend,
+    Filler,
+);
+
+const monthNames = [
+    'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
+    'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'
+];
+
+const ProfilePage = () => {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    const [activity, setActivity] = useState<number[]>([]);
+    const [transactions, setTransactions] = useState<any[]>([]);
+    const [installPrompt, setInstallPrompt] = useState<any>(null);
+    const [editOpen, setEditOpen] = useState(false);
+    const [editData, setEditData] = useState({username: '', email: ''});
+    const [editLoading, setEditLoading] = useState(false);
+    const [editError, setEditError] = useState('');
+    const [year, setYear] = useState<number>(new Date().getFullYear());
+    const [monthFrom, setMonthFrom] = useState<number>(0);
+    const [monthTo, setMonthTo] = useState<number>(11);
+    const [yearsAvailable, setYearsAvailable] = useState<number[]>([]);
+    const [passwordOpen, setPasswordOpen] = useState(false);
+    const [passwordData, setPasswordData] = useState({currentPassword: '', newPassword: ''});
+    const [passwordLoading, setPasswordLoading] = useState(false);
+    const [passwordError, setPasswordError] = useState('');
+    const [passwordSuccess, setPasswordSuccess] = useState('');
+    const [pwaStatus, setPwaStatus] = useState<'available' | 'installed' | 'unsupported' | 'unknown'>('unknown');
+    const [isStandalone, setIsStandalone] = useState(false);
     const theme = useTheme();
+    const chartRef = useRef<any>(null);
 
     useEffect(() => {
-      const loadUser = async () => {
-        try {
-          const userData = await getUserInfo();
-          setUser(userData);
-        } catch (error) {
-          console.error("Błąd podczas ładowania danych użytkownika:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
+        const handler = (e: any) => {
+            e.preventDefault();
+            setInstallPrompt(e);
+            setPwaStatus('available');
+        };
 
-      loadUser();
+        window.addEventListener('beforeinstallprompt', handler);
+
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            setPwaStatus('installed');
+        }
+
+        return () => window.removeEventListener('beforeinstallprompt', handler);
     }, []);
 
-    const handleLogout = async () => {
-      try {
-        await logout();
-        navigate('/login');
-      } catch (error) {
-        console.error("Błąd podczas wylogowywania:", error);
-      }
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (pwaStatus === 'unknown') {
+                setPwaStatus('unsupported');
+            }
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, [pwaStatus]);
+
+    useEffect(() => {
+        const checkStandalone = () => {
+            const standalone =
+                window.matchMedia('(display-mode: standalone)').matches ||
+                (window.navigator as any).standalone === true;
+            setIsStandalone(standalone);
+
+            // Jeśli aplikacja jest standalone lub była zainstalowana, ustaw status na 'installed'
+            if (
+                standalone ||
+                window.matchMedia('(display-mode: standalone)').matches ||
+                window.matchMedia('(display-mode: minimal-ui)').matches
+            ) {
+                setPwaStatus('installed');
+            }
+        };
+        checkStandalone();
+        window.addEventListener('resize', checkStandalone);
+        return () => window.removeEventListener('resize', checkStandalone);
+    }, []);
+
+    // Load user and activity
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const userRes = await getUserInfo();
+                setEditData({
+                    username: userRes.data?.username || '',
+                    email: userRes.data?.email || ''
+                });
+                setUser(userRes.data || userRes);
+
+                const transRes = await fetchAllTransactions();
+                const txs = transRes.data || transRes;
+                setTransactions(txs);
+
+                // Wyznacz dostępne lata z transakcji
+                const years = Array.from(new Set(txs.map((t: any) => new Date(t.date).getFullYear())));
+                years.sort((a, b) => b - a);
+                setYearsAvailable(years.length ? years : [new Date().getFullYear()]);
+                setYear(years.length ? years[0] : new Date().getFullYear());
+            } catch (error) {
+                console.error("Błąd podczas ładowania danych:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
+    }, []);
+
+    useEffect(() => {
+        if (chartRef.current) {
+            const chart = chartRef.current;
+
+            // Bezpieczny dostęp do właściwości
+            if (chart.scales?.y) {
+                chart.options = chart.options || {};
+                chart.options.scales = chart.options.scales || {};
+                chart.options.scales.y = chart.options.scales.y || {};
+                chart.options.scales.y.grid = {
+                    ...(chart.options.scales.y.grid || {}),
+                    color: (context: any) => {
+                        if (context.tick?.value === 0) {
+                            return theme.palette.divider;
+                        }
+                        return theme.palette.divider + '80';
+                    },
+                };
+
+                // Aktualizuj wykres jeśli metoda istnieje
+                if (typeof chart.update === 'function') {
+                    chart.update();
+                }
+            }
+        }
+    }, [theme]);
+
+    // Przelicz aktywność po zmianie zakresu
+    useEffect(() => {
+        const counts = [];
+        for (let m = monthFrom; m <= monthTo; m++) {
+            counts.push(
+                transactions.filter((t: any) => {
+                    const d = new Date(t.date);
+                    return d.getFullYear() === year && d.getMonth() === m;
+                }).length
+            );
+        }
+        setActivity(counts);
+    }, [transactions, year, monthFrom, monthTo]);
+
+    const handleInstallClick = async () => {
+        if (pwaStatus === 'installed') {
+            window.open(window.location.origin, '_blank', 'standalone=yes');
+            return;
+        }
+        if (installPrompt) {
+            installPrompt.prompt();
+            const {outcome} = await installPrompt.userChoice;
+            if (outcome === 'accepted') setPwaStatus('installed');
+        }
+    };
+
+    // Obsługa edycji profilu
+    const handleEditOpen = () => {
+        setEditData({username: user?.username || '', email: user?.email || ''});
+        setEditError('');
+        setEditOpen(true);
+    };
+
+    const handleEditSave = async () => {
+        setEditLoading(true);
+        setEditError('');
+        try {
+            await updateUserProfile(editData);
+            setUser((prev: any) => ({...prev, ...editData}));
+            setEditOpen(false);
+        } catch (e: any) {
+            const msg =
+                e?.response?.data?.message ||
+                e?.response?.data?.msg ||
+                e?.response?.data?.errors?.[0]?.msg ||
+                'Błąd aktualizacji profilu';
+            setEditError(msg);
+        }
+        setEditLoading(false);
+    };
+
+    // Obsługa zmiany hasła
+    const handlePasswordOpen = () => {
+        setPasswordData({currentPassword: '', newPassword: ''});
+        setPasswordError('');
+        setPasswordSuccess('');
+        setPasswordOpen(true);
+    };
+
+    const handlePasswordSave = async () => {
+        setPasswordLoading(true);
+        setPasswordError('');
+        setPasswordSuccess('');
+        try {
+            await changePassword(passwordData);
+            setPasswordSuccess('Hasło zostało zmienione');
+            setTimeout(() => setPasswordOpen(false), 1200);
+        } catch (e: any) {
+            const msg =
+                e?.response?.data?.message ||
+                e?.response?.data?.msg ||
+                e?.response?.data?.errors?.[0]?.msg ||
+                'Błąd zmiany hasła';
+            setPasswordError(msg);
+        }
+        setPasswordLoading(false);
     };
 
     if (loading) {
-      return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <CircularProgress />
-        </Box>
-      );
+        return (
+            <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
+                <CircularProgress/>
+            </Box>
+        );
     }
 
-    // Dane do wykresu aktywności
+    // Etykiety miesięcy do wykresu
+    const labels = [];
+    for (let m = monthFrom; m <= monthTo; m++) {
+        labels.push(monthNames[m]);
+    }
+
+    const monthlyExpenses = [];
+    for (let m = monthFrom; m <= monthTo; m++) {
+        const total = transactions
+            .filter((t: any) => {
+                const d = new Date(t.date);
+                return d.getFullYear() === year && d.getMonth() === m && t.type === 'expense';
+            })
+            .reduce((sum, t) => sum + t.amount, 0);
+        monthlyExpenses.push(total);
+    }
+
     const activityData = {
-      labels: ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec'],
-      datasets: [
-        {
-          label: 'Liczba transakcji',
-          data: [12, 19, 3, 5, 2, 3],
-          borderColor: theme.palette.primary.main,
-          backgroundColor: theme.palette.primary.main + '20',
-          fill: true,
+        labels,
+        datasets: [
+            {
+                label: 'Liczba transakcji',
+                data: activity,
+                borderColor: theme.palette.primary.main,
+                backgroundColor: theme.palette.primary.main + '20',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 6,
+                pointBackgroundColor: theme.palette.primary.light,
+                borderWidth: 2,
+            },
+            {
+                label: 'Suma wydatków',
+                data: monthlyExpenses,
+                borderColor: theme.palette.error.main,
+                backgroundColor: theme.palette.error.main + '20',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 6,
+                pointBackgroundColor: theme.palette.error.light,
+                borderWidth: 2,
+            },
+        ],
+    };
+    const options: ChartOptions<'line'> = {
+        responsive: true,
+        animation: {
+            duration: 1500,
+            // Używamy tylko dozwolonych wartości dla easing
+            easing: 'easeOutQuart',
+            // Usuwamy problematyczny delay
         },
-      ],
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    font: {
+                        size: 14,
+                    },
+                    usePointStyle: true,
+                    padding: 20,
+                },
+            },
+            tooltip: {
+                enabled: true,
+                backgroundColor: theme.palette.background.paper,
+                titleColor: theme.palette.text.primary,
+                bodyColor: theme.palette.text.secondary,
+                padding: 12,
+                cornerRadius: 8,
+                boxPadding: 6,
+                callbacks: {
+                    label: function (context) {
+                        const label = context.dataset.label || '';
+                        const value = context.parsed.y;
+
+                        if (label === 'Suma wydatków') {
+                            return `${label}: ${value.toFixed(2)} zł`;
+                        }
+                        return `${label}: ${value}`;
+                    }
+                }
+            },
+        },
+        scales: {
+            x: {
+                grid: {
+                    display: false,
+                },
+                ticks: {
+                    font: {
+                        size: 12,
+                    },
+                },
+                border: {
+                    display: true,
+                },
+            },
+            y: {
+                grid: {
+                    color: theme.palette.divider,
+                },
+                ticks: {
+                    font: {
+                        size: 12,
+                    },
+                },
+                border: {
+                    display: true,
+                },
+                beginAtZero: true,
+            },
+        },
+        elements: {
+            point: {
+                hoverRadius: 8,
+                hoverBorderWidth: 2,
+            },
+            line: {
+                borderJoinStyle: 'round',
+            }
+        },
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        hover: {
+            mode: 'nearest',
+            intersect: true,
+        },
     };
 
+
     return (
-      <Box sx={{ py: 4, px: { xs: 2, md: 4 } }}>
-        <Grid container spacing={3}>
-          {/* Główna karta profilu */}
-          <Grid item xs={12} md={4}>
-            <Card
-              elevation={3}
-              sx={{
-                borderRadius: 3,
-                height: '100%',
-                transition: 'all 0.3s',
-                '&:hover': { transform: 'translateY(-5px)' }
-              }}
-            >
-              <CardContent sx={{ p: 3, textAlign: 'center' }}>
-                <Avatar
-                  sx={{
-                    width: 120,
-                    height: 120,
-                    mx: 'auto',
-                    mb: 2,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                    border: `4px solid ${theme.palette.primary.main}`
-                  }}
-                >
-                  {user?.name?.charAt(0) || 'U'}
-                </Avatar>
-                <Typography variant="h5" gutterBottom>
-                  {user?.name || 'Użytkownik'}
-                </Typography>
-                <Typography color="text.secondary" gutterBottom>
-                  {user?.email || 'email@przykład.com'}
-                </Typography>
-
-                <Box sx={{ mt: 2 }}>
-                  <Chip
-                    label="Aktywny użytkownik"
-                    color="success"
-                    sx={{ fontWeight: 'medium' }}
-                  />
-                </Box>
-
-                <Divider sx={{ my: 3 }} />
-
-                <Box sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 2
-                }}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<EditIcon />}
-                    sx={{ borderRadius: 2 }}
-                  >
-                    Edytuj profil
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    startIcon={<LogoutIcon />}
-                    onClick={handleLogout}
-                    sx={{ borderRadius: 2 }}
-                  >
-                    Wyloguj się
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Aktywność użytkownika */}
-          <Grid item xs={12} md={8}>
+        <Box sx={{py: 4, px: {xs: 2, md: 4}}}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Card
-                  elevation={3}
-                  sx={{
-                    borderRadius: 3,
-                    transition: 'all 0.3s',
-                    '&:hover': { transform: 'translateY(-5px)' }
-                  }}
-                >
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Twoja aktywność
-                    </Typography>
-                    <Box sx={{ height: 300, mt: 2 }}>
-                      <Line data={activityData} />
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
+                {/* Główna karta profilu */}
+                <Grid size={{xs: 12, md: 4}}>
+                    <Card
+                        elevation={3}
+                        sx={{
+                            borderRadius: 3,
+                            height: '100%',
+                            transition: 'all 0.3s',
+                            '&:hover': {transform: 'translateY(-5px)'}
+                        }}
+                    >
+                        <CardContent sx={{p: 3, textAlign: 'center'}}>
+                            <Avatar
+                                sx={{
+                                    width: 120,
+                                    height: 120,
+                                    mx: 'auto',
+                                    mb: 2,
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                    border: `4px solid ${theme.palette.primary.main}`
+                                }}
+                            >
+                                {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                            </Avatar>
+                            <Typography variant="h5" gutterBottom>
+                                {user?.username || 'Użytkownik'}
+                            </Typography>
+                            <Typography color="text.secondary" gutterBottom>
+                                {user?.email || 'email@przykład.com'}
+                            </Typography>
 
-              {/* Ustawienia aplikacji */}
-              <Grid item xs={12}>
-                <Card
-                  elevation={3}
-                  sx={{
-                    borderRadius: 3,
-                    transition: 'all 0.3s',
-                    '&:hover': { transform: 'translateY(-5px)' }
-                  }}
-                >
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Ustawienia aplikacji
-                    </Typography>
+                            <Box sx={{mt: 2}}>
+                                <Chip
+                                    label="Aktywny użytkownik"
+                                    color="success"
+                                    sx={{fontWeight: 'medium'}}
+                                />
+                            </Box>
 
-                    <Grid container spacing={2} sx={{ mt: 1 }}>
-                      <Grid item xs={12} sm={6}>
-                        <Button
-                          fullWidth
-                          variant="outlined"
-                          startIcon={theme.palette.mode === 'dark' ? <LightModeIcon /> : <NightlightIcon />}
-                          sx={{ borderRadius: 2, py: 1.5 }}
-                        >
-                          {theme.palette.mode === 'dark' ? 'Tryb jasny' : 'Tryb ciemny'}
-                        </Button>
-                      </Grid>
+                            <Divider sx={{my: 3}}/>
 
-                      <Grid item xs={12} sm={6}>
-                        <Button
-                          fullWidth
-                          variant="outlined"
-                          startIcon={<DownloadIcon />}
-                          sx={{ borderRadius: 2, py: 1.5 }}
-                        >
-                          Zainstaluj aplikację (PWA)
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </Grid>
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2
+                            }}>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<EditIcon/>}
+                                    sx={{borderRadius: 2}}
+                                    onClick={handleEditOpen}
+                                >
+                                    Edytuj profil
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<LockIcon/>}
+                                    sx={{borderRadius: 2}}
+                                    onClick={handlePasswordOpen}
+                                >
+                                    Zmień hasło
+                                </Button>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                {/* Aktywność użytkownika - cała szerokość */}
+                <Grid size={{xs: 12, md: 8}}>
+                    <Card
+                        elevation={3}
+                        sx={{
+                            borderRadius: 3,
+                            minHeight: 420,
+                            transition: 'all 0.3s',
+                            '&:hover': {transform: 'translateY(-5px)'}
+                        }}
+                    >
+                        <CardContent>
+                            <Box sx={{display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2}}>
+                                <Typography variant="h6" sx={{flexGrow: 1}}>
+                                    Twoja aktywność
+                                </Typography>
+                                <FormControl size="small" sx={{minWidth: 100}}>
+                                    <InputLabel>Rok</InputLabel>
+                                    <Select
+                                        value={year}
+                                        label="Rok"
+                                        onChange={e => setYear(Number(e.target.value))}
+                                    >
+                                        {yearsAvailable.map(y => (
+                                            <MenuItem key={y} value={y}>{y}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <FormControl size="small" sx={{minWidth: 120}}>
+                                    <InputLabel>Miesiąc od</InputLabel>
+                                    <Select
+                                        value={monthFrom}
+                                        label="Miesiąc od"
+                                        onChange={e => setMonthFrom(Number(e.target.value))}
+                                    >
+                                        {monthNames.map((m, idx) => (
+                                            <MenuItem key={m} value={idx} disabled={idx > monthTo}>{m}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <FormControl size="small" sx={{minWidth: 120}}>
+                                    <InputLabel>Miesiąc do</InputLabel>
+                                    <Select
+                                        value={monthTo}
+                                        label="Miesiąc do"
+                                        onChange={e => setMonthTo(Number(e.target.value))}
+                                    >
+                                        {monthNames.map((m, idx) => (
+                                            <MenuItem key={m} value={idx} disabled={idx < monthFrom}>{m}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                            <Box sx={{height: 350, mt: 2}}>
+                                <Line data={activityData} options={options} ref={chartRef}/>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
             </Grid>
-          </Grid>
-        </Grid>
-      </Box>
-    );
-  };
 
-  export default ProfilePage;
+            {/* Ustawienia aplikacji na dole */}
+            <Box sx={{mt: 4, maxWidth: 400, mx: 'auto'}}>
+                <Card elevation={3} sx={{
+                    borderRadius: 3,
+                    transition: 'all 0.3s',
+                    '&:hover': {transform: 'translateY(-3px)', boxShadow: 6}
+                }}>
+                    <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                            Ustawienia aplikacji
+                        </Typography>
+                        {(pwaStatus === 'available') && (
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                startIcon={<DownloadIcon/>}
+                                sx={{
+                                    borderRadius: 2,
+                                    py: 1.5,
+                                    mt: 1,
+                                    position: 'relative',
+                                    overflow: 'visible',
+                                    boxShadow: 3,
+                                    '&::after': {
+                                        content: '""',
+                                        position: 'absolute',
+                                        inset: -3,
+                                        borderRadius: 'inherit',
+                                        border: `2px solid ${theme.palette.primary.main}`,
+                                        opacity: 0.6,
+                                        animation: 'pulsate 1.5s ease-out infinite'
+                                    },
+                                    '@keyframes pulsate': {
+                                        '0%': {transform: 'scale(1)', opacity: 0.6},
+                                        '50%': {transform: 'scale(1.05)', opacity: 0.3},
+                                        '100%': {transform: 'scale(1)', opacity: 0.6}
+                                    }
+                                }}
+                                onClick={handleInstallClick}
+                            >
+                                Zainstaluj aplikację (PWA)
+                            </Button>
+                        )}
+                        {(pwaStatus === 'installed' && !isStandalone) && (
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                startIcon={<DownloadIcon/>}
+                                sx={{borderRadius: 2, py: 1.5, mt: 1}}
+                                onClick={handleInstallClick}
+                            >
+                                Otwórz aplikację (PWA)
+                            </Button>
+                        )}
+                        {(pwaStatus === 'installed' && isStandalone) && (
+                            <Button
+                                fullWidth
+                                variant="outlined"
+                                startIcon={<DownloadIcon/>}
+                                sx={{borderRadius: 2, py: 1.5, mt: 1}}
+                                disabled
+                            >
+                                Aplikacja już otwarta przez PWA
+                            </Button>
+                        )}
+                        {(pwaStatus !== 'available' && pwaStatus !== 'installed') && (
+                            <Button
+                                fullWidth
+                                variant="outlined"
+                                startIcon={<DownloadIcon/>}
+                                sx={{borderRadius: 2, py: 1.5, mt: 1}}
+                                disabled
+                            >
+                                {pwaStatus === 'unsupported' && 'Instalacja niedostępna w tej przeglądarce'}
+                                {pwaStatus === 'unknown' && 'Sprawdzanie możliwości instalacji...'}
+                            </Button>
+                        )}
+                    </CardContent>
+                </Card>
+            </Box>
+
+            {/* Modal edycji profilu */}
+            <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
+                <DialogTitle>Edytuj profil</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="Nazwa użytkownika"
+                        fullWidth
+                        margin="normal"
+                        value={editData.username}
+                        onChange={e => setEditData(d => ({...d, username: e.target.value}))}
+                    />
+                    <TextField
+                        label="Email"
+                        fullWidth
+                        margin="normal"
+                        value={editData.email}
+                        onChange={e => setEditData(d => ({...d, email: e.target.value}))}
+                    />
+                    {editError && (
+                        <Typography color="error" variant="body2" sx={{mt: 1}}>
+                            {editError}
+                        </Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setEditOpen(false)}>Anuluj</Button>
+                    <Button
+                        onClick={handleEditSave}
+                        variant="contained"
+                        disabled={editLoading}
+                    >
+                        Zapisz
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Modal zmiany hasła */}
+            <Dialog open={passwordOpen} onClose={() => setPasswordOpen(false)}>
+                <DialogTitle>Zmień hasło</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="Obecne hasło"
+                        type="password"
+                        fullWidth
+                        margin="normal"
+                        value={passwordData.currentPassword}
+                        onChange={e => setPasswordData(d => ({...d, currentPassword: e.target.value}))}
+                    />
+                    <TextField
+                        label="Nowe hasło"
+                        type="password"
+                        fullWidth
+                        margin="normal"
+                        value={passwordData.newPassword}
+                        onChange={e => setPasswordData(d => ({...d, newPassword: e.target.value}))}
+                    />
+                    {passwordError && (
+                        <Typography color="error" variant="body2" sx={{mt: 1}}>
+                            {passwordError}
+                        </Typography>
+                    )}
+                    {passwordSuccess && (
+                        <Typography color="success.main" variant="body2" sx={{mt: 1}}>
+                            {passwordSuccess}
+                        </Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setPasswordOpen(false)}>Anuluj</Button>
+                    <Button
+                        onClick={handlePasswordSave}
+                        variant="contained"
+                        disabled={passwordLoading}
+                    >
+                        Zmień hasło
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Box>
+    );
+};
+
+export default ProfilePage;

@@ -92,3 +92,51 @@ export const getCurrentUser = async (req: AuthRequest, res: Response): Promise<v
         res.status(500).send("Server Error");
     }
 };
+
+export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        if (!req.user) {
+            res.status(401).json({ msg: "User not authenticated" });
+            return;
+        }
+        const { username, email } = req.body;
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            res.status(404).json({ msg: "User not found" });
+            return;
+        }
+        if (username) user.username = username;
+        if (email) user.email = email;
+        await user.save({ validateModifiedOnly: true });
+        res.json({ username: user.username, email: user.email });
+    } catch (err) {
+        console.error(err instanceof Error ? err.message : 'Unknown error');
+        res.status(500).send("Server Error");
+    }
+};
+
+export const changePassword = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        if (!req.user) {
+            res.status(401).json({ msg: "User not authenticated" });
+            return;
+        }
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            res.status(404).json({ msg: "User not found" });
+            return;
+        }
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            res.status(400).json({ msg: "Obecne hasło jest nieprawidłowe" });
+            return;
+        }
+        user.password = newPassword;
+        await user.save();
+        res.json({ msg: "Hasło zmienione" });
+    } catch (err) {
+        console.error(err instanceof Error ? err.message : 'Unknown error');
+        res.status(500).send("Server Error");
+    }
+};

@@ -5,6 +5,8 @@ import path from 'path';
 import connectDB from './config/db';
 import authRoutes from './routes/auth';
 import transactionRoutes from './routes/transaction';
+import categoryBudgetRoutes from './routes/categoryBudget';
+import savingGoalRoutes from './routes/savingGoal';
 
 // Załadowanie zmiennych środowiskowych
 dotenv.config();
@@ -21,7 +23,8 @@ app.use(cors());
 // Definicja routerów
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
-
+app.use("/api/category-budget", categoryBudgetRoutes);
+app.use('/api/saving-goals', savingGoalRoutes);
 // Obsługa PWA - statyczne pliki dla frontendu
 if (process.env.NODE_ENV === 'production') {
     // Statyczne pliki

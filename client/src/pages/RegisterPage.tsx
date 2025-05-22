@@ -1,7 +1,7 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import API from "../api/api";
+import { register } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import { Button, TextField, Typography, Box } from "@mui/material";
 
@@ -32,7 +32,7 @@ const RegisterPage: React.FC = () => {
         }),
         onSubmit: async (values, { setSubmitting, setErrors }) => {
             try {
-                await API.post("/api/auth/register", values);
+                await register(values);
                 navigate("/login");
             } catch (err: any) {
                 const msg =

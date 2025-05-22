@@ -9,4 +9,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </React.StrictMode>
 );
 
-serviceWorker.register();
+// Zawsze rejestruj service worker, niezależnie od środowiska
+if ('serviceWorker' in navigator) {
+    serviceWorker.register({
+        onSuccess: (registration) => {
+            console.log('Service Worker zarejestrowany pomyślnie', registration);
+        },
+        onUpdate: (registration) => {
+            console.log('Service Worker zaktualizowany', registration);
+        }
+    });
+}

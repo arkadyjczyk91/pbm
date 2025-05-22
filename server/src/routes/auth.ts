@@ -38,4 +38,7 @@ router.post(
 // Pobranie danych bieżącego użytkownika
 router.get('/me', auth, authController.getCurrentUser);
 
+router.put("/profile", auth, authController.updateProfile);
+router.put("/password", auth, authController.changePassword);
+
 export default router;

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import API from "../api/api";
 import type { Transaction } from "../types";
+import { fetchAllTransactions, deleteTransaction } from "../api/transaction";
 import {Box, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow, Modal} from "@mui/material";
 import AddTransactionForm from "../components/AddTransactionForm";
 import TransactionFilters from "../components/TransactionFilters";
@@ -28,9 +28,8 @@ const Transactions: React.FC = () => {
         if (filters.startDate && new Date(t.date) < new Date(filters.startDate)) return false;
 
         // Filtr po dacie końcowej
-        if (filters.endDate && new Date(t.date) > new Date(filters.endDate)) return false;
+        return !(filters.endDate && new Date(t.date) > new Date(filters.endDate));
 
-        return true;
     });
 
     const handleFilterChange = (name: string, value: string) => {
@@ -48,10 +47,19 @@ const Transactions: React.FC = () => {
 
     const fetchTransactions = async () => {
         try {
-            const res = await API.get("/api/transactions");
+            const res = await fetchAllTransactions(); // Użycie metody z transaction.ts
             setTransactions(res.data);
         } catch (err) {
-            // obsługa błędów
+            console.error("Błąd podczas pobierania transakcji:", err);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        try {
+            await deleteTransaction(id); // Użycie metody z transaction.ts
+            await fetchTransactions();
+        } catch (err) {
+            console.error("Błąd podczas usuwania transakcji:", err);
         }
     };
 
@@ -59,10 +67,6 @@ const Transactions: React.FC = () => {
         fetchTransactions();
     }, []);
 
-    const handleDelete = async (id: string) => {
-        await API.delete(`/api/transactions/${id}`);
-        await fetchTransactions();
-    };
 
     return (
         <Box mt={4}>

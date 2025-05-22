@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import {addTransaction} from "../api/transaction";
-import {CATEGORIES} from "../constants.ts";
+import {CATEGORIES} from "../constants.tsx";
 import SaveIcon from '@mui/icons-material/Save';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import PaidIcon from '@mui/icons-material/Paid';
@@ -32,12 +32,14 @@ const AddTransactionForm: React.FC<Props> = ({afterSubmit}) => {
             type: "expense",
             category: "",
             date: new Date().toISOString().split("T")[0],
+            title: "",
             description: "",
         },
         validationSchema: Yup.object({
             amount: Yup.number().typeError("Wprowadź liczbę").required("Wymagane"),
             type: Yup.string().oneOf(["income", "expense"]).required(),
             category: Yup.string().required("Wymagane"),
+            title: Yup.string().required("Wymagane"),
             date: Yup.string().required("Wymagane"),
         }),
         onSubmit: async (values, {setSubmitting, resetForm}) => {
@@ -45,7 +47,8 @@ const AddTransactionForm: React.FC<Props> = ({afterSubmit}) => {
                 await addTransaction({
                     ...values,
                     amount: Number(values.amount),
-                    type: values.type as "income" | "expense"
+                    type: values.type as "income" | "expense",
+                    title: values.title
                 });
                 resetForm();
                 afterSubmit();
@@ -139,6 +142,16 @@ const AddTransactionForm: React.FC<Props> = ({afterSubmit}) => {
 
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <TextField
+                                label="Tytuł"
+                                fullWidth
+                                {...formik.getFieldProps("title")}
+                                variant="outlined"
+                                required
+                            />
+                        </Grid>
+
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <TextField
                                 label="Kategoria"
                                 select
                                 fullWidth
@@ -157,7 +170,9 @@ const AddTransactionForm: React.FC<Props> = ({afterSubmit}) => {
                                 {filteredCategories.map(cat => (
                                     <MenuItem key={cat.value} value={cat.value}>
                                         {cat.icon && (
-                                            <Box component={cat.icon} sx={{color: cat.color, mr: 1}}/>
+                                            <Box sx={{color: cat.color, mr: 1}}>
+                                                {cat.icon}
+                                            </Box>
                                         )}
                                         {cat.label}
                                     </MenuItem>
