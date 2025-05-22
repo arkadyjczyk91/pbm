@@ -67,6 +67,8 @@ import {
     upsertCategoryBudget,
     resetCategoryBudget
 } from '../api/categoryBudget';
+import {useTheme} from '@mui/material/styles';
+
 
 const COLORS = ["#4CAF50", "#F44336", "#2196F3", "#FF9800", "#9C27B0", "#00BCD4", "#795548", "#607D8B"];
 
@@ -86,6 +88,7 @@ const Dashboard: React.FC = () => {
         // Dialog do dodawania/edycji celów
         const [goalDialogOpen, setGoalDialogOpen] = useState(false);
         const [currentGoal, setCurrentGoal] = useState<BudgetGoal | null>(null);
+        const theme = useTheme();
 
         // Pobieranie danych transakcji
         useEffect(() => {

@@ -17,11 +17,10 @@ import {
     FormControl,
     InputLabel,
 } from '@mui/material';
-import {alpha} from '@mui/material/styles';
+import {alpha, useTheme} from '@mui/material/styles';
 import Divider from '@mui/material/Divider';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
-import {useTheme} from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DownloadIcon from '@mui/icons-material/Download';
 import LockIcon from '@mui/icons-material/Lock';
@@ -237,23 +236,17 @@ const ProfilePage = () => {
             {
                 label: 'Liczba transakcji',
                 data: activity,
-                borderColor: theme.palette.primary.main,
-                backgroundColor: alpha(theme.palette.primary.main, 0.12),
                 fill: true,
                 tension: 0.4,
                 pointRadius: 6,
-                pointBackgroundColor: theme.palette.primary.light,
                 borderWidth: 2,
             },
             {
                 label: 'Suma wydatków',
                 data: monthlyExpenses,
-                borderColor: theme.palette.error.main,
-                backgroundColor: alpha(theme.palette.error.main, 0.12),
                 fill: true,
                 tension: 0.4,
                 pointRadius: 6,
-                pointBackgroundColor: theme.palette.error.light,
                 borderWidth: 2,
             },
         ],
