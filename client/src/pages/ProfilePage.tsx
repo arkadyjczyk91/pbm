@@ -265,87 +265,8 @@ const ProfilePage = () => {
             // Używamy tylko dozwolonych wartości dla easing
             easing: 'easeOutQuart',
             // Usuwamy problematyczny delay
-        },
-        plugins: {
-            legend: {
-                display: true,
-                position: 'top',
-                labels: {
-                    font: {
-                        size: 14,
-                    },
-                    usePointStyle: true,
-                    padding: 20,
-                },
-            },
-            tooltip: {
-                enabled: true,
-                backgroundColor: theme.palette.background.paper,
-                titleColor: theme.palette.text.primary,
-                bodyColor: theme.palette.text.secondary,
-                padding: 12,
-                cornerRadius: 8,
-                boxPadding: 6,
-                callbacks: {
-                    label: function (context) {
-                        const label = context.dataset.label || '';
-                        const value = context.parsed.y;
-
-                        if (label === 'Suma wydatków') {
-                            return `${label}: ${value.toFixed(2)} zł`;
-                        }
-                        return `${label}: ${value}`;
-                    }
-                }
-            },
-        },
-        scales: {
-            x: {
-                grid: {
-                    display: false,
-                },
-                ticks: {
-                    font: {
-                        size: 12,
-                    },
-                },
-                border: {
-                    display: true,
-                },
-            },
-            y: {
-                grid: {
-                    color: theme.palette.divider,
-                },
-                ticks: {
-                    font: {
-                        size: 12,
-                    },
-                },
-                border: {
-                    display: true,
-                },
-                beginAtZero: true,
-            },
-        },
-        elements: {
-            point: {
-                hoverRadius: 8,
-                hoverBorderWidth: 2,
-            },
-            line: {
-                borderJoinStyle: 'round',
-            }
-        },
-        interaction: {
-            mode: 'index',
-            intersect: false,
-        },
-        hover: {
-            mode: 'nearest',
-            intersect: true,
-        },
-    };
+        }
+    }
 
 
     return (
