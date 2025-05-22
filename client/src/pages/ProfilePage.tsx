@@ -109,29 +109,6 @@ const ProfilePage = () => {
         loadData();
     }, []);
 
-    useEffect(() => {
-        if (chartRef.current) {
-            const chart = chartRef.current;
-
-            // Tworzenie nowych opcji zamiast modyfikowania istniejących
-            const newOptions = {...chart.options};
-
-            if (newOptions.scales?.y) {
-                if (!newOptions.scales.y.grid) newOptions.scales.y.grid = {};
-                newOptions.scales.y.grid.color = alpha(theme.palette.divider, 0.5);
-
-                // Bezpieczna aktualizacja wykresu
-                chart.options = newOptions;
-
-                try {
-                    chart.update('none'); // Tryb 'none' zapobiega animacji podczas aktualizacji
-                } catch (err) {
-                    console.error('Błąd aktualizacji wykresu:', err);
-                }
-            }
-        }
-    }, [theme]);
-
     // Przelicz aktywność po zmianie zakresu
     useEffect(() => {
         const counts = [];
@@ -262,12 +239,21 @@ const ProfilePage = () => {
         responsive: true,
         animation: {
             duration: 1500,
-            // Używamy tylko dozwolonych wartości dla easing
             easing: 'easeOutQuart',
-            // Usuwamy problematyczny delay
+        },
+        scales: {
+            y: {
+                grid: {
+                    color: alpha(theme.palette.divider, 0.5)
+                }
+            },
+            x: {
+                grid: {
+                    color: alpha(theme.palette.divider, 0.5)
+                }
+            }
         }
     }
-
 
     return (
         <Box sx={{py: 4, px: {xs: 2, md: 4}}}>
