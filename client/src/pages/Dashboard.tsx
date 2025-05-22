@@ -667,7 +667,7 @@ const Dashboard: React.FC = () => {
                             sx={{
                                 borderRadius: 2,
                                 height: '100%',
-                                bgcolor: 'background.paper',
+                                bgcolor: theme.palette.background.paper,
                                 boxShadow: (theme) => `0 2px 10px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)'}`,
                                 transition: 'transform 0.3s',
                                 '&:hover': {transform: 'translateY(-4px)'}
@@ -698,7 +698,7 @@ const Dashboard: React.FC = () => {
                             sx={{
                                 borderRadius: 2,
                                 height: '100%',
-                                bgcolor: 'background.paper',
+                                bgcolor: theme.palette.background.paper,
                                 boxShadow: (theme) => `0 2px 10px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)'}`,
                                 transition: 'transform 0.3s',
                                 '&:hover': {transform: 'translateY(-4px)'}
@@ -729,7 +729,7 @@ const Dashboard: React.FC = () => {
                             sx={{
                                 borderRadius: 2,
                                 height: '100%',
-                                bgcolor: 'background.paper',
+                                bgcolor: theme.palette.background.paper,
                                 boxShadow: (theme) => `0 2px 10px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)'}`,
                                 transition: 'transform 0.3s',
                                 '&:hover': {transform: 'translateY(-4px)'}
