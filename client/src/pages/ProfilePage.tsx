@@ -113,19 +113,20 @@ const ProfilePage = () => {
         if (chartRef.current) {
             const chart = chartRef.current;
 
-            // Bezpieczny dostęp do właściwości
-            if (chart.scales?.y) {
-                chart.options = chart.options || {};
-                chart.options.scales = chart.options.scales || {};
-                chart.options.scales.y = chart.options.scales.y || {};
-                chart.options.scales.y.grid = {
-                    ...(chart.options.scales.y.grid || {}),
-                    color: alpha(theme.palette.divider, 0.5),
-                };
+            // Tworzenie nowych opcji zamiast modyfikowania istniejących
+            const newOptions = {...chart.options};
 
-                // Aktualizuj wykres jeśli metoda istnieje
-                if (typeof chart.update === 'function') {
-                    chart.update();
+            if (newOptions.scales?.y) {
+                if (!newOptions.scales.y.grid) newOptions.scales.y.grid = {};
+                newOptions.scales.y.grid.color = alpha(theme.palette.divider, 0.5);
+
+                // Bezpieczna aktualizacja wykresu
+                chart.options = newOptions;
+
+                try {
+                    chart.update('none'); // Tryb 'none' zapobiega animacji podczas aktualizacji
+                } catch (err) {
+                    console.error('Błąd aktualizacji wykresu:', err);
                 }
             }
         }
@@ -236,17 +237,23 @@ const ProfilePage = () => {
             {
                 label: 'Liczba transakcji',
                 data: activity,
+                borderColor: theme.palette.primary.main,
+                backgroundColor: alpha(theme.palette.primary.main, 0.12),
                 fill: true,
                 tension: 0.4,
                 pointRadius: 6,
+                pointBackgroundColor: theme.palette.primary.light,
                 borderWidth: 2,
             },
             {
                 label: 'Suma wydatków',
                 data: monthlyExpenses,
+                borderColor: theme.palette.error.main,
+                backgroundColor: alpha(theme.palette.error.main, 0.12),
                 fill: true,
                 tension: 0.4,
                 pointRadius: 6,
+                pointBackgroundColor: theme.palette.error.light,
                 borderWidth: 2,
             },
         ],
@@ -466,7 +473,7 @@ const ProfilePage = () => {
                             </Box>
                             <Box sx={{height: 350, mt: 2}}>
                                 <Line
-                                    key={theme.palette.mode}
+                                    key={`chart-${theme.palette.mode}`}
                                     data={activityData}
                                     options={options}
                                     ref={chartRef}
