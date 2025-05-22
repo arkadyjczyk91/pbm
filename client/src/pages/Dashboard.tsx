@@ -657,71 +657,85 @@ const Dashboard: React.FC = () => {
                 )}
 
                 {/* Karty statystyk */}
-                <Grid container spacing={3} mb={4}>
-                    <Grid size={{xs: 12, sm: 4}}>
+                <Grid container spacing={{xs: 2, sm: 3}} mb={4}>
+                    <Grid size={{xs: 12, sm: 6, md: 4}}>
                         <Card
                             elevation={3}
                             sx={{
                                 borderRadius: 2,
                                 height: '100%',
-                                backgroundImage: 'linear-gradient(to right bottom, #ffffff, #f8f9fa)',
+                                bgcolor: 'background.paper',
+                                boxShadow: (theme) => `0 2px 10px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)'}`,
                                 transition: 'transform 0.3s',
                                 '&:hover': {transform: 'translateY(-4px)'}
                             }}
                         >
-                            <CardContent sx={{p: 3}}>
+                            <CardContent sx={{p: {xs: 2, sm: 3}}}>
                                 <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
-                                    <TrendingUpIcon sx={{color: 'success.main', mr: 1, fontSize: 28}}/>
+                                    <TrendingUpIcon sx={{color: 'success.main', mr: 1, fontSize: {xs: 24, sm: 28}}}/>
                                     <Typography variant="h6" color="text.secondary">
                                         Przychody
                                     </Typography>
                                 </Box>
-                                <Typography variant="h4" color="success.main" fontWeight="bold">
+                                <Typography
+                                    variant="h4"
+                                    color="success.main"
+                                    fontWeight="bold"
+                                    sx={{fontSize: {xs: '1.5rem', sm: '2rem'}}}
+                                >
                                     {income.toFixed(2)} zł
                                 </Typography>
                             </CardContent>
                         </Card>
                     </Grid>
 
-                    <Grid size={{xs: 12, sm: 4}}>
+                    <Grid size={{xs: 12, sm: 6, md: 4}}>
                         <Card
                             elevation={3}
                             sx={{
                                 borderRadius: 2,
                                 height: '100%',
-                                backgroundImage: 'linear-gradient(to right bottom, #ffffff, #f8f9fa)',
+                                bgcolor: 'background.paper',
+                                boxShadow: (theme) => `0 2px 10px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)'}`,
                                 transition: 'transform 0.3s',
                                 '&:hover': {transform: 'translateY(-4px)'}
                             }}
                         >
-                            <CardContent sx={{p: 3}}>
+                            <CardContent sx={{p: {xs: 2, sm: 3}}}>
                                 <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
-                                    <TrendingDownIcon sx={{color: 'error.main', mr: 1, fontSize: 28}}/>
+                                    <TrendingDownIcon sx={{color: 'error.main', mr: 1, fontSize: {xs: 24, sm: 28}}}/>
                                     <Typography variant="h6" color="text.secondary">
                                         Wydatki
                                     </Typography>
                                 </Box>
-                                <Typography variant="h4" color="error.main" fontWeight="bold">
+                                <Typography
+                                    variant="h4"
+                                    color="error.main"
+                                    fontWeight="bold"
+                                    sx={{fontSize: {xs: '1.5rem', sm: '2rem'}}}
+                                >
                                     {expense.toFixed(2)} zł
                                 </Typography>
                             </CardContent>
                         </Card>
                     </Grid>
 
-                    <Grid size={{xs: 12, sm: 4}}>
+                    <Grid size={{xs: 12, sm: 6, md: 4}}>
                         <Card
                             elevation={3}
                             sx={{
                                 borderRadius: 2,
                                 height: '100%',
-                                backgroundImage: 'linear-gradient(to right bottom, #ffffff, #f8f9fa)',
+                                bgcolor: 'background.paper',
+                                boxShadow: (theme) => `0 2px 10px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)'}`,
                                 transition: 'transform 0.3s',
                                 '&:hover': {transform: 'translateY(-4px)'}
                             }}
                         >
-                            <CardContent sx={{p: 3}}>
+                            <CardContent sx={{p: {xs: 2, sm: 3}}}>
                                 <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
-                                    <AccountBalanceWalletIcon sx={{color: 'primary.main', mr: 1, fontSize: 28}}/>
+                                    <AccountBalanceWalletIcon
+                                        sx={{color: 'primary.main', mr: 1, fontSize: {xs: 24, sm: 28}}}/>
                                     <Typography variant="h6" color="text.secondary">
                                         Saldo
                                     </Typography>
@@ -729,6 +743,7 @@ const Dashboard: React.FC = () => {
                                 <Typography
                                     variant="h4"
                                     fontWeight="bold"
+                                    sx={{fontSize: {xs: '1.5rem', sm: '2rem'}}}
                                     color={balance >= 0 ? 'success.main' : 'error.main'}
                                 >
                                     {balance.toFixed(2)} zł
@@ -738,7 +753,8 @@ const Dashboard: React.FC = () => {
                     </Grid>
                 </Grid>
 
-                {/* Zakładki dla różnych widoków */}
+                {/* Zakładki dla różnych widoków */
+                }
                 <Tabs
                     value={activeTab}
                     onChange={handleTabChange}
@@ -756,339 +772,350 @@ const Dashboard: React.FC = () => {
                     <Tab icon={<PieChartIcon/>} label="Analiza kategorii"/>
                 </Tabs>
 
-                {/* Przegląd - Panel główny */}
-                {activeTab === 0 && (
-                    <Grid container spacing={3}>
-                        {/* Wykres kołowy */}
-                        <Grid size={{xs: 12, md: 6}}>
-                            <Card
-                                elevation={3}
-                                sx={{
-                                    borderRadius: 2,
-                                    height: '100%',
-                                    minHeight: 380,
-                                    transition: 'all 0.3s',
-                                    '&:hover': {boxShadow: '0 8px 24px rgba(0,0,0,0.12)'}
-                                }}
-                            >
-                                <CardContent>
-                                    <Typography variant="h6" mb={2} fontWeight="medium">
-                                        Przychody vs Wydatki
-                                    </Typography>
-                                    <Box sx={{height: 300, display: 'flex', justifyContent: 'center'}}>
-                                        {transactions.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <PieChart>
-                                                    <Pie
-                                                        data={overviewData}
-                                                        dataKey="value"
-                                                        nameKey="name"
-                                                        cx="50%"
-                                                        cy="50%"
-                                                        outerRadius={100}
-                                                        fill="#8884d8"
-                                                        label={({name, percent}) =>
-                                                            `${name}: ${(percent * 100).toFixed(0)}%`
-                                                        }
-                                                        labelLine={false}
-                                                        animationDuration={1000}
-                                                    >
-                                                        {overviewData.map((entry, index) => (
-                                                            <Cell key={`cell-${index}`} fill={entry.color}/>
-                                                        ))}
-                                                    </Pie>
-                                                    <Tooltip
-                                                        formatter={(value) => [`${Number(value).toFixed(2)} zł`, ""]}
-                                                    />
-                                                    <Legend/>
-                                                </PieChart>
-                                            </ResponsiveContainer>
-                                        ) : (
-                                            <Box sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                height: '100%'
-                                            }}>
-                                                <Typography color="text.secondary">
-                                                    Brak danych do wyświetlenia
-                                                </Typography>
-                                            </Box>
-                                        )}
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-
-                        {/* Wykres wydatków według kategorii */}
-                        <Grid size={{xs: 12, md: 6}}>
-                            <Card
-                                elevation={3}
-                                sx={{
-                                    borderRadius: 2,
-                                    height: '100%',
-                                    minHeight: 380,
-                                    transition: 'all 0.3s',
-                                    '&:hover': {boxShadow: '0 8px 24px rgba(0,0,0,0.12)'}
-                                }}
-                            >
-                                <CardContent>
-                                    <Typography variant="h6" mb={2} fontWeight="medium">
-                                        Wydatki według kategorii
-                                    </Typography>
-                                    <Box sx={{height: 300}}>
-                                        {transactions.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <BarChart
-                                                    data={categoryData.filter(item => item.value > 0)}
-                                                    layout="vertical"
-                                                    margin={{top: 5, right: 30, left: 20, bottom: 5}}
-                                                >
-                                                    <CartesianGrid strokeDasharray="3 3"/>
-                                                    <XAxis type="number"/>
-                                                    <YAxis dataKey="name" type="category" width={100}/>
-                                                    <Tooltip formatter={(value) => [`${Number(value).toFixed(2)} zł`, ""]}/>
-                                                    <Bar
-                                                        dataKey="value"
-                                                        name="Kwota"
-                                                        animationDuration={1000}
-                                                    >
-                                                        {categoryData.map((entry, index) => (
-                                                            <Cell key={`cell-${index}`}
-                                                                  fill={entry.color || COLORS[index % COLORS.length]}/>
-                                                        ))}
-                                                    </Bar>
-                                                </BarChart>
-                                            </ResponsiveContainer>
-                                        ) : (
-                                            <Box sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                height: '100%'
-                                            }}>
-                                                <Typography color="text.secondary">
-                                                    Brak danych do wyświetlenia
-                                                </Typography>
-                                            </Box>
-                                        )}
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-
-                        {/* Ostatnie transakcje */}
-                        <Grid size={{xs: 12, md: 6}}>
-                            <Card elevation={3} sx={{borderRadius: 2, height: '100%'}}>
-                                <CardContent>
-                                    <Typography variant="h6" mb={2} fontWeight="medium">
-                                        Ostatnie transakcje
-                                    </Typography>
-                                    <List>
-                                        {recentTransactions.length > 0 ? (
-                                            recentTransactions.map(transaction => (
-                                                <ListItem
-                                                    key={transaction._id}
-                                                    divider
-                                                    sx={{py: 1.5}}
-                                                    secondaryAction={
-                                                        <Typography
-                                                            variant="body1"
-                                                            fontWeight="medium"
-                                                            color={transaction.type === "income" ? "success.main" : "error.main"}
-                                                        >
-                                                            {transaction.type === "income" ? "+" : "-"}{transaction.amount.toFixed(2)} zł
-                                                        </Typography>
-                                                    }
-                                                >
-                                                    <ListItemIcon>
-                                                        {transaction.type === "income"
-                                                            ? <TrendingUpIcon color="success"/>
-                                                            : <TrendingDownIcon color="error"/>}
-                                                    </ListItemIcon>
-                                                    <ListItemText
-                                                        primary={transaction.title}
-                                                        secondary={format(parseISO(transaction.date), 'dd MMMM yyyy', {locale: plPL})}
-                                                    />
-                                                </ListItem>
-                                            ))
-                                        ) : (
-                                            <Typography color="text.secondary" sx={{py: 2, textAlign: 'center'}}>
-                                                Brak ostatnich transakcji
-                                            </Typography>
-                                        )}
-                                    </List>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-
-                        {/* Kategorie z najwyższymi wydatkami */}
-                        <Grid size={{xs: 12, md: 6}}>
-                            <Card elevation={3} sx={{borderRadius: 2, height: '100%'}}>
-                                <CardContent>
-                                    <Typography variant="h6" mb={2} fontWeight="medium">
-                                        Najwyższe wydatki
-                                    </Typography>
-                                    <List>
-                                        {topExpenseCategories.length > 0 ? (
-                                            topExpenseCategories.map((category, index) => (
-                                                <ListItem key={index} sx={{py: 1.5}}>
-                                                    <ListItemIcon sx={{ color: category.color }}>
-                                                        {CATEGORIES.find(c => c.label === category.name)?.icon || <CategoryIcon />}
-                                                    </ListItemIcon>
-                                                    <ListItemText primary={category.name}/>
-                                                    <Typography variant="body1" fontWeight="medium" color="error.main">
-                                                        {category.value.toFixed(2)} zł
-                                                    </Typography>
-                                                </ListItem>
-                                            ))
-                                        ) : (
-                                            <Typography color="text.secondary" sx={{py: 2, textAlign: 'center'}}>
-                                                Brak danych o wydatkach
-                                            </Typography>
-                                        )}
-                                    </List>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    </Grid>
-                )}
-
-                {/* Trend finansowy */}
-                {activeTab === 1 && (
-                    <Card elevation={3} sx={{borderRadius: 2, p: 2}}>
-                        <CardContent>
-                            <Typography variant="h6" mb={2} fontWeight="medium">
-                                Trend finansowy - ostatnie 6 miesięcy
-                            </Typography>
-                            <Box sx={{height: 400}}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart
-                                        data={getMonthlyData()}
-                                        margin={{top: 10, right: 30, left: 0, bottom: 0}}
-                                    >
-                                        <CartesianGrid strokeDasharray="3 3"/>
-                                        <XAxis dataKey="name"/>
-                                        <YAxis/>
-                                        <Tooltip formatter={(value) => [`${Number(value).toFixed(2)} zł`, ""]}/>
-                                        <Legend/>
-                                        <Area
-                                            type="monotone"
-                                            dataKey="przychody"
-                                            name="Przychody"
-                                            stroke="#4CAF50"
-                                            fill="#4CAF50"
-                                            fillOpacity={0.2}
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="wydatki"
-                                            name="Wydatki"
-                                            stroke="#F44336"
-                                            fill="#F44336"
-                                            fillOpacity={0.2}
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="saldo"
-                                            name="Saldo"
-                                            stroke="#2196F3"
-                                            fill="#2196F3"
-                                            fillOpacity={0.2}
-                                        />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </Box>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Budżety kategorii */}
-                {activeTab === 2 && (
-                    <Box>
-                        <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 3}}>
-                            <Typography variant="h6" fontWeight="medium">
-                                Budżety kategorii
-                            </Typography>
-                        </Box>
+                {/* Przegląd - Panel główny */
+                }
+                {
+                    activeTab === 0 && (
                         <Grid container spacing={3}>
-                            {categoryBudgets.length > 0 ? (
-                                categoryBudgets.map((budget, index) => (
-                                    <Grid size={{xs: 12, sm: 6, md: 4}} key={index}>
-                                        <Card elevation={3} sx={{borderRadius: 2}}>
-                                            <CardContent>
+                            {/* Wykres kołowy */}
+                            <Grid size={{xs: 12, md: 6}}>
+                                <Card
+                                    elevation={3}
+                                    sx={{
+                                        borderRadius: 2,
+                                        height: '100%',
+                                        minHeight: 380,
+                                        transition: 'all 0.3s',
+                                        '&:hover': {boxShadow: '0 8px 24px rgba(0,0,0,0.12)'}
+                                    }}
+                                >
+                                    <CardContent>
+                                        <Typography variant="h6" mb={2} fontWeight="medium">
+                                            Przychody vs Wydatki
+                                        </Typography>
+                                        <Box sx={{height: 300, display: 'flex', justifyContent: 'center'}}>
+                                            {transactions.length > 0 ? (
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <PieChart>
+                                                        <Pie
+                                                            data={overviewData}
+                                                            dataKey="value"
+                                                            nameKey="name"
+                                                            cx="50%"
+                                                            cy="50%"
+                                                            outerRadius={100}
+                                                            fill="#8884d8"
+                                                            label={({name, percent}) =>
+                                                                `${name}: ${(percent * 100).toFixed(0)}%`
+                                                            }
+                                                            labelLine={false}
+                                                            animationDuration={1000}
+                                                        >
+                                                            {overviewData.map((entry, index) => (
+                                                                <Cell key={`cell-${index}`} fill={entry.color}/>
+                                                            ))}
+                                                        </Pie>
+                                                        <Tooltip
+                                                            formatter={(value) => [`${Number(value).toFixed(2)} zł`, ""]}
+                                                        />
+                                                        <Legend/>
+                                                    </PieChart>
+                                                </ResponsiveContainer>
+                                            ) : (
                                                 <Box sx={{
                                                     display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center'
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    height: '100%'
                                                 }}>
-                                                    <Typography variant="h6" fontWeight="medium">
-                                                        {CATEGORIES.find(c => c.value === budget.category)?.label || budget.category}
+                                                    <Typography color="text.secondary">
+                                                        Brak danych do wyświetlenia
                                                     </Typography>
-                                                    <CategoryIcon sx={{color: budget.color}}/>
                                                 </Box>
-                                                <Box sx={{mt: 2, mb: 1}}>
-                                                    <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
-                                                        <Typography variant="subtitle1">
-                                                            Wydano: {budget.spent.toFixed(2)} zł
-                                                        </Typography>
-                                                        <Typography variant="subtitle1">
-                                                            Limit: {budget.limit > 0 ? `${budget.limit.toFixed(2)} zł` : "Brak limitu"}
-                                                        </Typography>
-                                                    </Box>
-                                                    {budget.limit > 0 ? (
-                                                        <LinearProgress
-                                                            variant="determinate"
-                                                            value={Math.min((budget.spent / budget.limit) * 100, 100)}
-                                                            color={
-                                                                budget.spent / budget.limit > 0.9 ? "error" :
-                                                                    budget.spent / budget.limit > 0.7 ? "warning" : "primary"
-                                                            }
-                                                            sx={{height: 8, borderRadius: 5, mt: 1}}
-                                                        />
-                                                    ) : (
-                                                        <Typography variant="caption" color="text.secondary" sx={{mt: 1, display: 'block'}}>
-                                                            Brak ustalonego limitu dla tej kategorii
-                                                        </Typography>
-                                                    )}
-                                                </Box>
+                                            )}
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
 
-                                                <TextField
-                                                    label="Budżet miesięczny"
-                                                    type="number"
-                                                    size="small"
-                                                    fullWidth
-                                                    value={budget.limit}
-                                                    onChange={(e) => handleBudgetChange(budget.category, Number(e.target.value))}
-                                                    InputProps={{
-                                                        endAdornment: <Typography variant="subtitle2">zł</Typography>
-                                                    }}
-                                                    sx={{mt: 2}}
-                                                />
-
-                                                <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 2}}>
-                                                    <IconButton
-                                                        color="info"
-                                                        onClick={() => handleBudgetReset(budget.category)}
-                                                        title="Resetuj budżet"
+                            {/* Wykres wydatków według kategorii */}
+                            <Grid size={{xs: 12, md: 6}}>
+                                <Card
+                                    elevation={3}
+                                    sx={{
+                                        borderRadius: 2,
+                                        height: '100%',
+                                        minHeight: 380,
+                                        transition: 'all 0.3s',
+                                        '&:hover': {boxShadow: '0 8px 24px rgba(0,0,0,0.12)'}
+                                    }}
+                                >
+                                    <CardContent>
+                                        <Typography variant="h6" mb={2} fontWeight="medium">
+                                            Wydatki według kategorii
+                                        </Typography>
+                                        <Box sx={{height: 300}}>
+                                            {transactions.length > 0 ? (
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <BarChart
+                                                        data={categoryData.filter(item => item.value > 0)}
+                                                        layout="vertical"
+                                                        margin={{top: 5, right: 30, left: 20, bottom: 5}}
                                                     >
-                                                        <RestartAltIcon/>
-                                                    </IconButton>
+                                                        <CartesianGrid strokeDasharray="3 3"/>
+                                                        <XAxis type="number"/>
+                                                        <YAxis dataKey="name" type="category" width={100}/>
+                                                        <Tooltip formatter={(value) => [`${Number(value).toFixed(2)} zł`, ""]}/>
+                                                        <Bar
+                                                            dataKey="value"
+                                                            name="Kwota"
+                                                            animationDuration={1000}
+                                                        >
+                                                            {categoryData.map((entry, index) => (
+                                                                <Cell key={`cell-${index}`}
+                                                                      fill={entry.color || COLORS[index % COLORS.length]}/>
+                                                            ))}
+                                                        </Bar>
+                                                    </BarChart>
+                                                </ResponsiveContainer>
+                                            ) : (
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    height: '100%'
+                                                }}>
+                                                    <Typography color="text.secondary">
+                                                        Brak danych do wyświetlenia
+                                                    </Typography>
                                                 </Box>
-                                            </CardContent>
-                                        </Card>
-                                    </Grid>
-                                ))
-                            ) : (
-                                <Grid size={{xs: 12}}>
-                                    <Typography color="text.secondary" sx={{py: 2, textAlign: 'center'}}>
-                                        Brak zdefiniowanych budżetów kategorii
-                                    </Typography>
-                                </Grid>
-                            )}
+                                            )}
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+
+                            {/* Ostatnie transakcje */}
+                            <Grid size={{xs: 12, md: 6}}>
+                                <Card elevation={3} sx={{borderRadius: 2, height: '100%'}}>
+                                    <CardContent>
+                                        <Typography variant="h6" mb={2} fontWeight="medium">
+                                            Ostatnie transakcje
+                                        </Typography>
+                                        <List>
+                                            {recentTransactions.length > 0 ? (
+                                                recentTransactions.map(transaction => (
+                                                    <ListItem
+                                                        key={transaction._id}
+                                                        divider
+                                                        sx={{py: 1.5}}
+                                                        secondaryAction={
+                                                            <Typography
+                                                                variant="body1"
+                                                                fontWeight="medium"
+                                                                color={transaction.type === "income" ? "success.main" : "error.main"}
+                                                            >
+                                                                {transaction.type === "income" ? "+" : "-"}{transaction.amount.toFixed(2)} zł
+                                                            </Typography>
+                                                        }
+                                                    >
+                                                        <ListItemIcon>
+                                                            {transaction.type === "income"
+                                                                ? <TrendingUpIcon color="success"/>
+                                                                : <TrendingDownIcon color="error"/>}
+                                                        </ListItemIcon>
+                                                        <ListItemText
+                                                            primary={transaction.title}
+                                                            secondary={format(parseISO(transaction.date), 'dd MMMM yyyy', {locale: plPL})}
+                                                        />
+                                                    </ListItem>
+                                                ))
+                                            ) : (
+                                                <Typography color="text.secondary" sx={{py: 2, textAlign: 'center'}}>
+                                                    Brak ostatnich transakcji
+                                                </Typography>
+                                            )}
+                                        </List>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+
+                            {/* Kategorie z najwyższymi wydatkami */}
+                            <Grid size={{xs: 12, md: 6}}>
+                                <Card elevation={3} sx={{borderRadius: 2, height: '100%'}}>
+                                    <CardContent>
+                                        <Typography variant="h6" mb={2} fontWeight="medium">
+                                            Najwyższe wydatki
+                                        </Typography>
+                                        <List>
+                                            {topExpenseCategories.length > 0 ? (
+                                                topExpenseCategories.map((category, index) => (
+                                                    <ListItem key={index} sx={{py: 1.5}}>
+                                                        <ListItemIcon sx={{color: category.color}}>
+                                                            {CATEGORIES.find(c => c.label === category.name)?.icon ||
+                                                                <CategoryIcon/>}
+                                                        </ListItemIcon>
+                                                        <ListItemText primary={category.name}/>
+                                                        <Typography variant="body1" fontWeight="medium" color="error.main">
+                                                            {category.value.toFixed(2)} zł
+                                                        </Typography>
+                                                    </ListItem>
+                                                ))
+                                            ) : (
+                                                <Typography color="text.secondary" sx={{py: 2, textAlign: 'center'}}>
+                                                    Brak danych o wydatkach
+                                                </Typography>
+                                            )}
+                                        </List>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
                         </Grid>
-                    </Box>
-                )}
+                    )
+                }
+
+                {/* Trend finansowy */
+                }
+                {
+                    activeTab === 1 && (
+                        <Card elevation={3} sx={{borderRadius: 2, p: 2}}>
+                            <CardContent>
+                                <Typography variant="h6" mb={2} fontWeight="medium">
+                                    Trend finansowy - ostatnie 6 miesięcy
+                                </Typography>
+                                <Box sx={{height: 400}}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart
+                                            data={getMonthlyData()}
+                                            margin={{top: 10, right: 30, left: 0, bottom: 0}}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3"/>
+                                            <XAxis dataKey="name"/>
+                                            <YAxis/>
+                                            <Tooltip formatter={(value) => [`${Number(value).toFixed(2)} zł`, ""]}/>
+                                            <Legend/>
+                                            <Area
+                                                type="monotone"
+                                                dataKey="przychody"
+                                                name="Przychody"
+                                                stroke="#4CAF50"
+                                                fill="#4CAF50"
+                                                fillOpacity={0.2}
+                                            />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="wydatki"
+                                                name="Wydatki"
+                                                stroke="#F44336"
+                                                fill="#F44336"
+                                                fillOpacity={0.2}
+                                            />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="saldo"
+                                                name="Saldo"
+                                                stroke="#2196F3"
+                                                fill="#2196F3"
+                                                fillOpacity={0.2}
+                                            />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    )
+                }
+
+                {/* Budżety kategorii */
+                }
+                {
+                    activeTab === 2 && (
+                        <Box>
+                            <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 3}}>
+                                <Typography variant="h6" fontWeight="medium">
+                                    Budżety kategorii
+                                </Typography>
+                            </Box>
+                            <Grid container spacing={3}>
+                                {categoryBudgets.length > 0 ? (
+                                    categoryBudgets.map((budget, index) => (
+                                        <Grid size={{xs: 12, sm: 6, md: 4}} key={index}>
+                                            <Card elevation={3} sx={{borderRadius: 2}}>
+                                                <CardContent>
+                                                    <Box sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center'
+                                                    }}>
+                                                        <Typography variant="h6" fontWeight="medium">
+                                                            {CATEGORIES.find(c => c.value === budget.category)?.label || budget.category}
+                                                        </Typography>
+                                                        <CategoryIcon sx={{color: budget.color}}/>
+                                                    </Box>
+                                                    <Box sx={{mt: 2, mb: 1}}>
+                                                        <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+                                                            <Typography variant="subtitle1">
+                                                                Wydano: {budget.spent.toFixed(2)} zł
+                                                            </Typography>
+                                                            <Typography variant="subtitle1">
+                                                                Limit: {budget.limit > 0 ? `${budget.limit.toFixed(2)} zł` : "Brak limitu"}
+                                                            </Typography>
+                                                        </Box>
+                                                        {budget.limit > 0 ? (
+                                                            <LinearProgress
+                                                                variant="determinate"
+                                                                value={Math.min((budget.spent / budget.limit) * 100, 100)}
+                                                                color={
+                                                                    budget.spent / budget.limit > 0.9 ? "error" :
+                                                                        budget.spent / budget.limit > 0.7 ? "warning" : "primary"
+                                                                }
+                                                                sx={{height: 8, borderRadius: 5, mt: 1}}
+                                                            />
+                                                        ) : (
+                                                            <Typography variant="caption" color="text.secondary"
+                                                                        sx={{mt: 1, display: 'block'}}>
+                                                                Brak ustalonego limitu dla tej kategorii
+                                                            </Typography>
+                                                        )}
+                                                    </Box>
+
+                                                    <TextField
+                                                        label="Budżet miesięczny"
+                                                        type="number"
+                                                        size="small"
+                                                        fullWidth
+                                                        value={budget.limit}
+                                                        onChange={(e) => handleBudgetChange(budget.category, Number(e.target.value))}
+                                                        InputProps={{
+                                                            endAdornment: <Typography variant="subtitle2">zł</Typography>
+                                                        }}
+                                                        sx={{mt: 2}}
+                                                    />
+
+                                                    <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 2}}>
+                                                        <IconButton
+                                                            color="info"
+                                                            onClick={() => handleBudgetReset(budget.category)}
+                                                            title="Resetuj budżet"
+                                                        >
+                                                            <RestartAltIcon/>
+                                                        </IconButton>
+                                                    </Box>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                    ))
+                                ) : (
+                                    <Grid size={{xs: 12}}>
+                                        <Typography color="text.secondary" sx={{py: 2, textAlign: 'center'}}>
+                                            Brak zdefiniowanych budżetów kategorii
+                                        </Typography>
+                                    </Grid>
+                                )}
+                            </Grid>
+                        </Box>
+                    )
+                }
 
                 {/* Cele oszczędnościowe */
                 }
