@@ -20,12 +20,15 @@ import PaidIcon from '@mui/icons-material/Paid';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import DescriptionIcon from '@mui/icons-material/Description';
 import CategoryIcon from '@mui/icons-material/Category';
+import { useTheme } from "@mui/material/styles";
 
 interface Props {
     afterSubmit: () => void;
 }
 
 const AddTransactionForm: React.FC<Props> = ({afterSubmit}) => {
+    const theme = useTheme();
+
     const formik = useFormik({
         initialValues: {
             amount: "",
@@ -74,7 +77,7 @@ const AddTransactionForm: React.FC<Props> = ({afterSubmit}) => {
             sx={{
                 borderRadius: 3,
                 overflow: 'hidden',
-                background: 'linear-gradient(to right, #f6f9fc, #ffffff)',
+                background: theme.palette.background.paper,
                 transition: 'transform 0.3s',
                 '&:hover': {
                     transform: 'translateY(-5px)'

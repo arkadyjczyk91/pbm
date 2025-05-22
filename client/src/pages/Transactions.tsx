@@ -5,6 +5,7 @@ import {Box, Typography, Button, Table, TableBody, TableCell, TableHead, TableRo
 import AddTransactionForm from "../components/AddTransactionForm";
 import TransactionFilters from "../components/TransactionFilters";
 import EditTransactionForm from "../components/EditTransactionForm";
+import { useTheme } from "@mui/material/styles";
 
 const Transactions: React.FC = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -16,6 +17,7 @@ const Transactions: React.FC = () => {
         type: "",
         category: ""
     });
+    const theme = useTheme();
 
     const filteredTransactions = transactions.filter(t => {
         // Filtr po typie
@@ -122,7 +124,16 @@ const Transactions: React.FC = () => {
 
             {/* Modal dodawania transakcji */}
             <Modal open={open} onClose={() => setOpen(false)}>
-                <Box sx={{p: 4, background: "#fff", maxWidth: 400, margin: "100px auto", borderRadius: 2}}>
+                <Box
+                    sx={{
+                        p: 4,
+                        background: theme.palette.background.paper,
+                        color: theme.palette.text.primary,
+                        maxWidth: 400,
+                        margin: "100px auto",
+                        borderRadius: 2
+                    }}
+                >
                     <AddTransactionForm afterSubmit={() => {
                         setOpen(false);
                         fetchTransactions();
@@ -135,7 +146,16 @@ const Transactions: React.FC = () => {
                 open={!!editTransaction}
                 onClose={() => setEditTransaction(null)}
             >
-                <Box sx={{p: 4, background: "#fff", maxWidth: 400, margin: "100px auto", borderRadius: 2}}>
+                <Box
+                    sx={{
+                        p: 4,
+                        background: theme.palette.background.paper,
+                        color: theme.palette.text.primary,
+                        maxWidth: 400,
+                        margin: "100px auto",
+                        borderRadius: 2
+                    }}
+                >
                     {editTransaction && (
                         <EditTransactionForm
                             transaction={editTransaction}

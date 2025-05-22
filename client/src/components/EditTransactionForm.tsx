@@ -5,6 +5,8 @@ import type {Transaction} from "../types";
 import {updateTransaction} from "../api/transaction";
 import {Button, TextField, MenuItem, Box} from "@mui/material";
 import {CATEGORIES} from "../constants.tsx";
+import {Card, CardContent} from "@mui/material";
+import {useTheme} from "@mui/material/styles";
 
 interface Props {
     transaction: Transaction;
@@ -17,6 +19,7 @@ const EditTransactionForm: React.FC<Props> = ({
                                                   afterSubmit,
                                                   onCancel
                                               }) => {
+    const theme = useTheme();
     const formik = useFormik({
         initialValues: {
             amount: transaction.amount.toString(),
@@ -56,73 +59,89 @@ const EditTransactionForm: React.FC<Props> = ({
     });
 
     return (
-        <form onSubmit={formik.handleSubmit}>
-            <TextField
-                label="Kwota"
-                fullWidth
-                margin="normal"
-                {...formik.getFieldProps("amount")}
-                error={!!formik.errors.amount && formik.touched.amount}
-                helperText={formik.touched.amount && formik.errors.amount}
-            />
-            <TextField
-                label="Typ"
-                select
-                fullWidth
-                margin="normal"
-                {...formik.getFieldProps("type")}
-            >
-                <MenuItem value="income">Przychód</MenuItem>
-                <MenuItem value="expense">Wydatek</MenuItem>
-            </TextField>
-            <TextField
-                label="Kategoria"
-                select
-                fullWidth
-                margin="normal"
-                {...formik.getFieldProps("category")}
-                error={!!formik.errors.category && formik.touched.category}
-                helperText={formik.touched.category && formik.errors.category}
-            >
-                {CATEGORIES.map(cat => (
-                    <MenuItem key={cat.value} value={cat.value}>{cat.label}</MenuItem>
-                ))}
-            </TextField>
-            <TextField
-                label="Data"
-                type="date"
-                fullWidth
-                margin="normal"
-                {...formik.getFieldProps("date")}
-                slotProps={{inputLabel: {shrink: true}}}
-                error={!!formik.errors.date && formik.touched.date}
-                helperText={formik.touched.date && formik.errors.date}
-            />
-            <TextField
-                label="Opis"
-                fullWidth
-                margin="normal"
-                {...formik.getFieldProps("description")}
-            />
-            <Box sx={{display: "flex", gap: 2, mt: 2}}>
-                <Button
-                    type="button"
-                    variant="outlined"
-                    fullWidth
-                    onClick={onCancel}
-                >
-                    Anuluj
-                </Button>
-                <Button
-                    type="submit"
-                    variant="contained"
-                    fullWidth
-                    disabled={formik.isSubmitting}
-                >
-                    Aktualizuj
-                </Button>
-            </Box>
-        </form>
+        <Card
+            elevation={3}
+            sx={{
+                borderRadius: 3,
+                overflow: 'hidden',
+                background: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                transition: 'transform 0.3s',
+                '&:hover': {
+                    transform: 'translateY(-5px)'
+                }
+            }}
+        >
+            <CardContent sx={{p: 3}}>
+                <form onSubmit={formik.handleSubmit}>
+                    <TextField
+                        label="Kwota"
+                        fullWidth
+                        margin="normal"
+                        {...formik.getFieldProps("amount")}
+                        error={!!formik.errors.amount && formik.touched.amount}
+                        helperText={formik.touched.amount && formik.errors.amount}
+                    />
+                    <TextField
+                        label="Typ"
+                        select
+                        fullWidth
+                        margin="normal"
+                        {...formik.getFieldProps("type")}
+                    >
+                        <MenuItem value="income">Przychód</MenuItem>
+                        <MenuItem value="expense">Wydatek</MenuItem>
+                    </TextField>
+                    <TextField
+                        label="Kategoria"
+                        select
+                        fullWidth
+                        margin="normal"
+                        {...formik.getFieldProps("category")}
+                        error={!!formik.errors.category && formik.touched.category}
+                        helperText={formik.touched.category && formik.errors.category}
+                    >
+                        {CATEGORIES.map(cat => (
+                            <MenuItem key={cat.value} value={cat.value}>{cat.label}</MenuItem>
+                        ))}
+                    </TextField>
+                    <TextField
+                        label="Data"
+                        type="date"
+                        fullWidth
+                        margin="normal"
+                        {...formik.getFieldProps("date")}
+                        slotProps={{inputLabel: {shrink: true}}}
+                        error={!!formik.errors.date && formik.touched.date}
+                        helperText={formik.touched.date && formik.errors.date}
+                    />
+                    <TextField
+                        label="Opis"
+                        fullWidth
+                        margin="normal"
+                        {...formik.getFieldProps("description")}
+                    />
+                    <Box sx={{display: "flex", gap: 2, mt: 2}}>
+                        <Button
+                            type="button"
+                            variant="outlined"
+                            fullWidth
+                            onClick={onCancel}
+                        >
+                            Anuluj
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            fullWidth
+                            disabled={formik.isSubmitting}
+                        >
+                            Aktualizuj
+                        </Button>
+                    </Box>
+                </form>
+            </CardContent>
+        </Card>
     );
 };
 
