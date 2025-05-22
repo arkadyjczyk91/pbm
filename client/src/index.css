@@ -66,3 +66,23 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+body {
+  margin: 0;
+  min-width: 280px; /* zmniejszona wartość dla bardzo wąskich urządzeń */
+  min-height: 100vh;
+  width: 100%;
+}
+
+#root {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem; /* mniejszy padding na mobilnych */
+}
+
+@media (min-width: 768px) {
+  #root {
+    padding: 2rem; /* większy padding na większych ekranach */
+  }
+}
