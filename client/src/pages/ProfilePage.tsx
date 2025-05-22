@@ -17,7 +17,7 @@ import {
     FormControl,
     InputLabel,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
+import {alpha} from '@mui/material/styles';
 import Divider from '@mui/material/Divider';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -40,7 +40,7 @@ import {
     Filler,
     type ChartOptions
 } from 'chart.js';
-import { usePWAContext } from '../PWAContext';
+import {usePWAContext} from '../PWAContext';
 
 ChartJS.register(
     CategoryScale,
@@ -249,7 +249,7 @@ const ProfilePage = () => {
                 label: 'Suma wydatków',
                 data: monthlyExpenses,
                 borderColor: theme.palette.error.main,
-                backgroundColor: alpha(theme.palette.primary.main, 0.12),
+                backgroundColor: alpha(theme.palette.error.main, 0.12),
                 fill: true,
                 tension: 0.4,
                 pointRadius: 6,
