@@ -41,7 +41,6 @@ import {
     type ChartOptions
 } from 'chart.js';
 import {usePWA} from '../hooks/usePWA';
-import { alpha } from '@mui/material/styles';
 
 ChartJS.register(
     CategoryScale,
