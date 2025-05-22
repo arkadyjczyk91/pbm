@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
+      filename: 'service-worker.js',
       base: '/pbm/',
       // ... inne opcje
     })
