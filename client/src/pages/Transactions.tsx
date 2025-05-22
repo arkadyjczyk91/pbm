@@ -1,11 +1,23 @@
 import React, {useEffect, useState} from "react";
-import type { Transaction } from "../types";
-import { fetchAllTransactions, deleteTransaction } from "../api/transaction";
-import {Box, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow, Modal} from "@mui/material";
+import type {Transaction} from "../types";
+import {fetchAllTransactions, deleteTransaction} from "../api/transaction";
+import {
+    Box,
+    Typography,
+    Button,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    Modal,
+    TableContainer,
+    Paper
+} from "@mui/material";
 import AddTransactionForm from "../components/AddTransactionForm";
 import TransactionFilters from "../components/TransactionFilters";
 import EditTransactionForm from "../components/EditTransactionForm";
-import { useTheme } from "@mui/material/styles";
+import {useTheme} from "@mui/material/styles";
 
 const Transactions: React.FC = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -83,44 +95,46 @@ const Transactions: React.FC = () => {
                 onReset={resetFilters}
             />
 
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Kategoria</TableCell>
-                        <TableCell>Kwota</TableCell>
-                        <TableCell>Typ</TableCell>
-                        <TableCell>Data</TableCell>
-                        <TableCell>Opis</TableCell>
-                        <TableCell>Akcje</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {filteredTransactions.map((t) => (
-                        <TableRow key={t._id}>
-                            <TableCell>{t.category}</TableCell>
-                            <TableCell>{t.amount} zł</TableCell>
-                            <TableCell>{t.type === "income" ? "Przychód" : "Wydatek"}</TableCell>
-                            <TableCell>{new Date(t.date).toLocaleDateString()}</TableCell>
-                            <TableCell>{t.description}</TableCell>
-                            <TableCell>
-                                <Button
-                                    sx={{mr: 1}}
-                                    color="primary"
-                                    onClick={() => setEditTransaction(t)}
-                                >
-                                    Edytuj
-                                </Button>
-                                <Button
-                                    color="error"
-                                    onClick={() => handleDelete(t._id)}
-                                >
-                                    Usuń
-                                </Button>
-                            </TableCell>
+            <TableContainer component={Paper} sx={{maxWidth: "100%", overflowX: "auto", mb: 2}}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Kategoria</TableCell>
+                            <TableCell>Kwota</TableCell>
+                            <TableCell>Typ</TableCell>
+                            <TableCell>Data</TableCell>
+                            <TableCell>Opis</TableCell>
+                            <TableCell>Akcje</TableCell>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHead>
+                    <TableBody>
+                        {filteredTransactions.map((t) => (
+                            <TableRow key={t._id}>
+                                <TableCell>{t.category}</TableCell>
+                                <TableCell>{t.amount} zł</TableCell>
+                                <TableCell>{t.type === "income" ? "Przychód" : "Wydatek"}</TableCell>
+                                <TableCell>{new Date(t.date).toLocaleDateString()}</TableCell>
+                                <TableCell>{t.description}</TableCell>
+                                <TableCell>
+                                    <Button
+                                        sx={{mr: 1}}
+                                        color="primary"
+                                        onClick={() => setEditTransaction(t)}
+                                    >
+                                        Edytuj
+                                    </Button>
+                                    <Button
+                                        color="error"
+                                        onClick={() => handleDelete(t._id)}
+                                    >
+                                        Usuń
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
             {/* Modal dodawania transakcji */}
             <Modal open={open} onClose={() => setOpen(false)}>

@@ -39,7 +39,7 @@ import {
     Filler,
     type ChartOptions
 } from 'chart.js';
-import { usePWA } from '../hooks/usePWA';
+import {usePWA} from '../hooks/usePWA';
 
 ChartJS.register(
     CategoryScale,
@@ -476,7 +476,12 @@ const ProfilePage = () => {
                                 </FormControl>
                             </Box>
                             <Box sx={{height: 350, mt: 2}}>
-                                <Line data={activityData} options={options} ref={chartRef}/>
+                                <Line
+                                    key={theme.palette.mode}
+                                    data={activityData}
+                                    options={options}
+                                    ref={chartRef}
+                                />
                             </Box>
                         </CardContent>
                     </Card>
