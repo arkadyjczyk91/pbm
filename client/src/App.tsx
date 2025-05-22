@@ -1,7 +1,7 @@
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { lightTheme, darkTheme } from './theme';
-import { Route, BrowserRouter as Router, Routes, Navigate } from 'react-router-dom';
+import { Route, HashRouter as Router, Routes, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';

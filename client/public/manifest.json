@@ -3,24 +3,25 @@
   "name": "Śledzenie Finansów",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "/pbm/favicon.ico",
       "sizes": "64x64",
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "/pbm/logo192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "logo512.png",
+      "src": "/pbm/logo512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/pbm/",
+  "scope": "/pbm/",
   "display": "standalone",
   "theme_color": "#3f51b5",
   "background_color": "#ffffff",
