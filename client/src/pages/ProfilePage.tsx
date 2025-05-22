@@ -39,6 +39,7 @@ import {
     Filler,
     type ChartOptions
 } from 'chart.js';
+import { usePWA } from '../hooks/usePWA';
 
 ChartJS.register(
     CategoryScale,
@@ -61,7 +62,6 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [activity, setActivity] = useState<number[]>([]);
     const [transactions, setTransactions] = useState<any[]>([]);
-    const [installPrompt, setInstallPrompt] = useState<any>(null);
     const [editOpen, setEditOpen] = useState(false);
     const [editData, setEditData] = useState({username: '', email: ''});
     const [editLoading, setEditLoading] = useState(false);
@@ -75,56 +75,9 @@ const ProfilePage = () => {
     const [passwordLoading, setPasswordLoading] = useState(false);
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
-    const [pwaStatus, setPwaStatus] = useState<'available' | 'installed' | 'unsupported' | 'unknown'>('unknown');
-    const [isStandalone, setIsStandalone] = useState(false);
+    const [pwaStatus, promptInstall] = usePWA();
     const theme = useTheme();
     const chartRef = useRef<any>(null);
-
-    useEffect(() => {
-        const handler = (e: any) => {
-            e.preventDefault();
-            setInstallPrompt(e);
-            setPwaStatus('available');
-        };
-
-        window.addEventListener('beforeinstallprompt', handler);
-
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            setPwaStatus('installed');
-        }
-
-        return () => window.removeEventListener('beforeinstallprompt', handler);
-    }, []);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (pwaStatus === 'unknown') {
-                setPwaStatus('unsupported');
-            }
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, [pwaStatus]);
-
-    useEffect(() => {
-        const checkStandalone = () => {
-            const standalone =
-                window.matchMedia('(display-mode: standalone)').matches ||
-                (window.navigator as any).standalone === true;
-            setIsStandalone(standalone);
-
-            // Jeśli aplikacja jest standalone lub była zainstalowana, ustaw status na 'installed'
-            if (
-                standalone ||
-                window.matchMedia('(display-mode: standalone)').matches ||
-                window.matchMedia('(display-mode: minimal-ui)').matches
-            ) {
-                setPwaStatus('installed');
-            }
-        };
-        checkStandalone();
-        window.addEventListener('resize', checkStandalone);
-        return () => window.removeEventListener('resize', checkStandalone);
-    }, []);
 
     // Load user and activity
     useEffect(() => {
@@ -198,15 +151,11 @@ const ProfilePage = () => {
     }, [transactions, year, monthFrom, monthTo]);
 
     const handleInstallClick = async () => {
-        if (pwaStatus === 'installed') {
-            window.open(window.location.origin, '_blank', 'standalone=yes');
+        if (pwaStatus.isInstalled && !pwaStatus.isStandalone) {
+            window.open(window.location.origin + window.location.pathname, '_blank');
             return;
         }
-        if (installPrompt) {
-            installPrompt.prompt();
-            const {outcome} = await installPrompt.userChoice;
-            if (outcome === 'accepted') setPwaStatus('installed');
-        }
+        await promptInstall();
     };
 
     // Obsługa edycji profilu
@@ -545,7 +494,7 @@ const ProfilePage = () => {
                         <Typography variant="h6" gutterBottom>
                             Ustawienia aplikacji
                         </Typography>
-                        {(pwaStatus === 'available') && (
+                        {!pwaStatus.isStandalone && pwaStatus.isAvailable && (
                             <Button
                                 fullWidth
                                 variant="contained"
@@ -578,7 +527,7 @@ const ProfilePage = () => {
                                 Zainstaluj aplikację (PWA)
                             </Button>
                         )}
-                        {(pwaStatus === 'installed' && !isStandalone) && (
+                        {pwaStatus.isInstalled && !pwaStatus.isStandalone && (
                             <Button
                                 fullWidth
                                 variant="contained"
@@ -590,7 +539,7 @@ const ProfilePage = () => {
                                 Otwórz aplikację (PWA)
                             </Button>
                         )}
-                        {(pwaStatus === 'installed' && isStandalone) && (
+                        {pwaStatus.isStandalone && (
                             <Button
                                 fullWidth
                                 variant="outlined"
@@ -601,7 +550,7 @@ const ProfilePage = () => {
                                 Aplikacja już otwarta przez PWA
                             </Button>
                         )}
-                        {(pwaStatus !== 'available' && pwaStatus !== 'installed') && (
+                        {!pwaStatus.isAvailable && !pwaStatus.isInstalled && (
                             <Button
                                 fullWidth
                                 variant="outlined"
@@ -609,8 +558,7 @@ const ProfilePage = () => {
                                 sx={{borderRadius: 2, py: 1.5, mt: 1}}
                                 disabled
                             >
-                                {pwaStatus === 'unsupported' && 'Instalacja niedostępna w tej przeglądarce'}
-                                {pwaStatus === 'unknown' && 'Sprawdzanie możliwości instalacji...'}
+                                Instalacja niedostępna w tej przeglądarce
                             </Button>
                         )}
                     </CardContent>

@@ -6,42 +6,29 @@ import {
 import GetAppIcon from '@mui/icons-material/GetApp';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIcon from '@mui/icons-material/Close';
-
-const isStandalone = () =>
-    window.matchMedia('(display-mode: standalone)').matches ||
-    (window.navigator as any).standalone === true;
+import { usePWA } from '../hooks/usePWA';
 
 const PWAPrompt: React.FC = () => {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [showOpenPrompt, setShowOpenPrompt] = useState(false);
-  const [installEvent, setInstallEvent] = useState<any>(null);
   const theme = useTheme();
+  const [pwaStatus, promptInstall] = usePWA();
 
   useEffect(() => {
-    if (isStandalone()) return; // Nie pokazuj dialogów jeśli już uruchomiona jako PWA
+    if (pwaStatus.isStandalone) return; // Nie pokazuj dialogów jeśli już uruchomiona jako PWA
 
-    if ((navigator as any).getInstalledRelatedApps) {
-      (navigator as any).getInstalledRelatedApps().then((apps: any[]) => {
-        if (apps.length > 0) {
-          setShowOpenPrompt(true);
-        } else {
-          setShowInstallPrompt(true);
-        }
-      });
-    } else {
+    const pwaPromptShown = localStorage.getItem('pwaPromptShown');
+    if (pwaPromptShown === 'true') return;
+
+    // Jeśli aplikacja jest zainstalowana, ale nie jest uruchomiona w trybie standalone
+    if (pwaStatus.isInstalled && !pwaStatus.isStandalone) {
+      setShowOpenPrompt(true);
+    }
+    // Jeśli aplikacja jest dostępna do instalacji
+    else if (pwaStatus.isAvailable) {
       setShowInstallPrompt(true);
     }
-
-    const beforeInstallHandler = (e: any) => {
-      e.preventDefault();
-      setInstallEvent(e);
-    };
-    window.addEventListener('beforeinstallprompt', beforeInstallHandler);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', beforeInstallHandler);
-    };
-  }, []);
+  }, [pwaStatus]);
 
   const handleClose = () => {
     setShowInstallPrompt(false);
@@ -50,17 +37,16 @@ const PWAPrompt: React.FC = () => {
   };
 
   const handleInstall = async () => {
-    if (installEvent) {
-      installEvent.prompt();
-      await installEvent.userChoice;
-      setShowInstallPrompt(false);
-    }
+    await promptInstall();
+    setShowInstallPrompt(false);
   };
 
   const handleOpenPWA = () => {
-    window.open(window.location.origin, '_blank');
+    window.open(window.location.origin + window.location.pathname, '_blank');
     setShowOpenPrompt(false);
   };
+
+  const logoPath = `${import.meta.env.BASE_URL}logo192.png`;
 
   return (
       <>
@@ -75,7 +61,7 @@ const PWAPrompt: React.FC = () => {
           <DialogContent>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
               <img
-                  src="/logo192.png"
+                  src={logoPath}
                   alt="Logo aplikacji"
                   style={{ width: 100, height: 100, marginBottom: 16 }}
               />
@@ -96,7 +82,7 @@ const PWAPrompt: React.FC = () => {
                   ml: 2,
                   background: `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.primary.main} 90%)`,
                 }}
-                disabled={!installEvent}
+                disabled={!pwaStatus.installPrompt}
             >
               Zainstaluj teraz
             </Button>
@@ -114,7 +100,7 @@ const PWAPrompt: React.FC = () => {
           <DialogContent>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
               <img
-                  src="/logo192.png"
+                  src={logoPath}
                   alt="Logo aplikacji"
                   style={{ width: 100, height: 100, marginBottom: 16 }}
               />
