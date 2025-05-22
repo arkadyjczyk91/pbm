@@ -41,6 +41,7 @@ import {
     type ChartOptions
 } from 'chart.js';
 import {usePWA} from '../hooks/usePWA';
+import { alpha } from '@mui/material/styles';
 
 ChartJS.register(
     CategoryScale,
@@ -238,7 +239,7 @@ const ProfilePage = () => {
                 label: 'Liczba transakcji',
                 data: activity,
                 borderColor: theme.palette.primary.main,
-                backgroundColor: theme.palette.primary.main + '20',
+                backgroundColor: alpha(theme.palette.primary.main, 0.12),
                 fill: true,
                 tension: 0.4,
                 pointRadius: 6,
@@ -249,7 +250,7 @@ const ProfilePage = () => {
                 label: 'Suma wydatków',
                 data: monthlyExpenses,
                 borderColor: theme.palette.error.main,
-                backgroundColor: theme.palette.error.main + '20',
+                backgroundColor: alpha(theme.palette.primary.main, 0.12),
                 fill: true,
                 tension: 0.4,
                 pointRadius: 6,
@@ -495,6 +496,18 @@ const ProfilePage = () => {
                         <Typography variant="h6" gutterBottom>
                             Ustawienia aplikacji
                         </Typography>
+                        {pwaStatus.isInstalled && !pwaStatus.isStandalone && (
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                startIcon={<DownloadIcon/>}
+                                sx={{borderRadius: 2, py: 1.5, mt: 1}}
+                                onClick={handleInstallClick}
+                            >
+                                Otwórz aplikację (PWA)
+                            </Button>
+                        )}
                         {!pwaStatus.isStandalone && pwaStatus.isAvailable && (
                             <Button
                                 fullWidth
@@ -528,18 +541,6 @@ const ProfilePage = () => {
                                 Zainstaluj aplikację (PWA)
                             </Button>
                         )}
-                        {pwaStatus.isInstalled && !pwaStatus.isStandalone && (
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                startIcon={<DownloadIcon/>}
-                                sx={{borderRadius: 2, py: 1.5, mt: 1}}
-                                onClick={handleInstallClick}
-                            >
-                                Otwórz aplikację (PWA)
-                            </Button>
-                        )}
                         {pwaStatus.isStandalone && (
                             <Button
                                 fullWidth
@@ -551,7 +552,7 @@ const ProfilePage = () => {
                                 Aplikacja już otwarta przez PWA
                             </Button>
                         )}
-                        {!pwaStatus.isAvailable && !pwaStatus.isInstalled && (
+                        {!pwaStatus.isAvailable && !pwaStatus.isInstalled && !pwaStatus.isStandalone && (
                             <Button
                                 fullWidth
                                 variant="outlined"
