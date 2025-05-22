@@ -7,6 +7,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       filename: 'service-worker.js',
       base: '/pbm/',
+      srcDir: 'public',
       // ... inne opcje
     })
   ],
